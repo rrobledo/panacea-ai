@@ -1,0 +1,212 @@
+{
+  "ultimo_aumento": "2026-09-28",
+  "semanas_base": [
+    "2026-W40",
+    "2026-W41",
+    "2026-W43"
+  ],
+  "indice_base": 100.9,
+  "generado": "2026-11-02T17:14",
+  "proyeccion": {
+    "Carlos Paz": {
+      "mape": 21.0,
+      "historico": [
+        {
+          "mes": "2025-11",
+          "valor": 1571.0
+        },
+        {
+          "mes": "2025-12",
+          "valor": 1533.0
+        },
+        {
+          "mes": "2026-01",
+          "valor": 2090.0
+        },
+        {
+          "mes": "2026-02",
+          "valor": 2122.0
+        },
+        {
+          "mes": "2026-03",
+          "valor": 1781.0
+        },
+        {
+          "mes": "2026-04",
+          "valor": 1758.0
+        },
+        {
+          "mes": "2026-05",
+          "valor": 1702.0
+        },
+        {
+          "mes": "2026-06",
+          "valor": 1626.0
+        },
+        {
+          "mes": "2026-07",
+          "valor": 1940.0
+        },
+        {
+          "mes": "2026-08",
+          "valor": 1589.0
+        },
+        {
+          "mes": "2026-09",
+          "valor": 1399.0
+        },
+        {
+          "mes": "2026-10",
+          "valor": 1360.0
+        }
+      ],
+      "proyeccion": [
+        {
+          "periodo_futuro": 1,
+          "valor": 1818.48,
+          "rango_bajo": 1371.62,
+          "rango_alto": 2265.33,
+          "mes": "2026-11"
+        },
+        {
+          "periodo_futuro": 2,
+          "valor": 1945.84,
+          "rango_bajo": 1498.98,
+          "rango_alto": 2392.69,
+          "mes": "2026-12"
+        },
+        {
+          "periodo_futuro": 3,
+          "valor": 2496.38,
+          "rango_bajo": 2049.52,
+          "rango_alto": 2943.23,
+          "mes": "2027-01"
+        }
+      ]
+    },
+    "Villa Allende": {
+      "mape": 16.89,
+      "historico": [
+        {
+          "mes": "2025-11",
+          "valor": 858.0
+        },
+        {
+          "mes": "2025-12",
+          "valor": 819.0
+        },
+        {
+          "mes": "2026-01",
+          "valor": 707.0
+        },
+        {
+          "mes": "2026-02",
+          "valor": 734.0
+        },
+        {
+          "mes": "2026-03",
+          "valor": 830.0
+        },
+        {
+          "mes": "2026-04",
+          "valor": 838.0
+        },
+        {
+          "mes": "2026-05",
+          "valor": 826.0
+        },
+        {
+          "mes": "2026-06",
+          "valor": 931.0
+        },
+        {
+          "mes": "2026-07",
+          "valor": 901.0
+        },
+        {
+          "mes": "2026-08",
+          "valor": 885.0
+        },
+        {
+          "mes": "2026-09",
+          "valor": 908.0
+        },
+        {
+          "mes": "2026-10",
+          "valor": 915.0
+        }
+      ],
+      "proyeccion": [
+        {
+          "periodo_futuro": 1,
+          "valor": 896.85,
+          "rango_bajo": 647.37,
+          "rango_alto": 1146.34,
+          "mes": "2026-11"
+        },
+        {
+          "periodo_futuro": 2,
+          "valor": 936.66,
+          "rango_bajo": 687.17,
+          "rango_alto": 1186.14,
+          "mes": "2026-12"
+        },
+        {
+          "periodo_futuro": 3,
+          "valor": 703.2,
+          "rango_bajo": 453.72,
+          "rango_alto": 952.69,
+          "mes": "2027-01"
+        }
+      ]
+    }
+  },
+  "sucursales": {
+    "Dietetica": {
+      "tickets": 15,
+      "unidades": 746.49,
+      "ventas": 1895453.0,
+      "tickets_most": 0
+    },
+    "Todas": {
+      "tickets": 642,
+      "unidades": 3199.05,
+      "ventas": 11750591.0,
+      "tickets_most": 627,
+      "tp": 15721.35,
+      "upt": 3.91,
+      "pct_uno": 31.03,
+      "pct_cafe": 12.59
+    },
+    "Villa Allende": {
+      "tickets": 204,
+      "unidades": 572.82,
+      "ventas": 2742263.0,
+      "tickets_most": 204,
+      "tp": 13435.17,
+      "upt": 2.82,
+      "pct_uno": 44.06,
+      "pct_cafe": 13.71
+    },
+    "Villa General Belgrano": {
+      "tickets": 126,
+      "unidades": 439.33,
+      "ventas": 1628163.0,
+      "tickets_most": 126,
+      "tp": 12975.27,
+      "upt": 3.49,
+      "pct_uno": 37.25,
+      "pct_cafe": 29.27
+    },
+    "Carlos Paz": {
+      "tickets": 297,
+      "unidades": 1440.41,
+      "ventas": 5484712.0,
+      "tickets_most": 297,
+      "tp": 18458.98,
+      "upt": 4.85,
+      "pct_uno": 19.44,
+      "pct_cafe": 4.83
+    }
+  }
+}

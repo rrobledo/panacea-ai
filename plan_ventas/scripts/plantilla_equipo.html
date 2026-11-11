@@ -1,0 +1,192 @@
+<meta charset="utf-8">
+<title>Ventas por sucursal Panacea</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+/*__CSS__*/
+.sucs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 14px; }
+.suc { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.suc .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.suc .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; }
+.suc dl { margin: 0; display: grid; grid-template-columns: 1fr auto auto; gap: 4px 10px; font-size: 0.88rem; }
+.suc dt { color: var(--fg-2); }
+.suc dd { margin: 0; text-align: right; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.suc p { font-size: 0.9rem; color: var(--fg-2); }
+.findings { list-style: none; margin: 0; padding: 0; display: grid; counter-reset: f; }
+.findings li { display: grid; grid-template-columns: 2rem 1fr; gap: 12px; align-items: baseline; padding-block: 12px; border-bottom: 1px solid var(--line); }
+.findings li::before { counter-increment: f; content: counter(f); font-family: var(--font-display); font-weight: 700; color: var(--accent); font-size: 1.3rem; }
+.chain { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 18px; margin: 0; }
+.chain div { min-width: 0; }
+.chain dt { font-family: var(--font-data); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.chain dd { margin: 2px 0 0; font-size: 0.93rem; }
+.chain dd.impact { font-family: var(--font-data); color: var(--accent); font-weight: 500; }
+.warn { color: var(--warn); font-weight: 600; }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <span class="eyebrow">Panacea · Reporte para el equipo de ventas</span>
+  <h1 id="titulo"></h1>
+  <p class="lede" id="bajada"></p>
+  <div class="meta" id="meta"></div>
+</header>
+
+<section aria-labelledby="h-res">
+  <div class="head"><span class="eyebrow">Resumen ejecutivo</span><h2 id="h-res">Lo que hay que saber</h2></div>
+  <ol class="findings" id="resumen"></ol>
+</section>
+
+<section aria-labelledby="h-kpi">
+  <div class="head"><span class="eyebrow">Mostrador · todas las sucursales</span><h2 id="h-kpi">La semana contra la base previa al plan</h2>
+    <p id="kpi-lede"></p></div>
+  <div class="kpis" id="tiles" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))"></div>
+</section>
+
+<section aria-labelledby="h-suc">
+  <div class="head"><span class="eyebrow">Sucursales</span><h2 id="h-suc">Cómo está cada una</h2></div>
+  <div class="sucs" id="sucs"></div>
+  <div class="tbl"><table id="tmost"></table></div>
+</section>
+
+<section aria-labelledby="h-evo">
+  <div class="head"><span class="eyebrow">Últimos meses</span><h2 id="h-evo">Evolución semanal desde julio</h2>
+    <p>La banda sombreada son las semanas tomadas como base: posteriores al aumento del 28/09 y anteriores al inicio del plan (25/10).</p></div>
+  <div class="legend" id="leg-hist"></div>
+  <div class="strats" id="hist"></div>
+</section>
+
+<section aria-labelledby="h-proy">
+  <div class="head"><span class="eyebrow">Proyección</span><h2 id="h-proy">Tickets por mes, próximos tres meses</h2>
+    <p id="proy-lede"></p></div>
+  <div class="strats" id="proy"></div>
+</section>
+
+<section aria-labelledby="h-plan">
+  <div class="head"><span class="eyebrow">Plan comercial</span><h2 id="h-plan">Estado de las estrategias de mostrador</h2>
+    <p>El plan se armó el 24/10 y empezó a ejecutarse el domingo 25/10. Semanas de domingo a sábado.</p></div>
+  <div class="tbl"><table id="tplan"></table></div>
+</section>
+
+<section aria-labelledby="h-est">
+  <div class="head"><span class="eyebrow">Estrategias priorizadas</span><h2 id="h-est">Qué hacemos ahora</h2></div>
+  <div class="strats" id="estr" style="grid-template-columns:1fr"></div>
+</section>
+
+<section aria-labelledby="h-hip">
+  <div class="head"><span class="eyebrow">Hechos e hipótesis</span><h2 id="h-hip">Lo que sabemos y lo que hay que confirmar</h2></div>
+  <div class="split" id="hip"></div>
+</section>
+
+<section aria-labelledby="h-met">
+  <div class="head"><span class="eyebrow">Nota metodológica</span><h2 id="h-met">Cómo se calculó</h2></div>
+  <div class="method" id="method"></div>
+</section>
+<footer id="foot"></footer>
+</div>
+
+<script>
+/*__DATA__*/
+/*__JS__*/
+const N = DATA.notas;
+const ult = DATA.semanas.filter(s => s.tiene_datos).pop();
+const suc = ult.detalle.sucursales;
+const fila = l => suc.find(r => r.lugar === l) || {};
+const tot = fila('Todas');
+const B = DATA.bases;
+
+document.getElementById('titulo').textContent = N.titulo;
+document.getElementById('bajada').textContent = N.bajada;
+document.getElementById('meta').innerHTML = [
+  `<span>Última semana: <span class="num">${rango(ult.desde, ult.hasta)}</span></span>`,
+  `<span>Histórico desde el <span class="num">${fechaCorta(DATA.historico.semanas[0].desde)}</span></span>`,
+  `<span>Último aumento de precios: <span class="num">${fechaCorta(B.ultimo_aumento)}</span></span>`,
+  DATA.urls.general ? `<span><a href="${DATA.urls.general}" target="_blank" rel="noopener">Seguimiento completo del plan</a></span>` : ''
+].join('');
+document.getElementById('resumen').innerHTML = N.resumen.map(r => `<li><span>${r}</span></li>`).join('');
+
+// ---- tarjetas
+const k = ult.kpis;
+document.getElementById('kpi-lede').textContent = `La base es el promedio de ${B.semanas_base.length} semanas posteriores al aumento del ${fechaCorta(B.ultimo_aumento)}, con los mismos precios. La diferencia la explica la venta, no la remarcación.`;
+const tile = (lbl, val, d, cmp, sentido = 'subir', pp) => `<div class="kpi"><span class="lbl">${lbl}</span><span class="val">${val}</span><span class="cmp">${celdaDelta(d, sentido, pp)} ${cmp}</span></div>`;
+document.getElementById('tiles').innerHTML = [
+  tile('Tickets de mostrador', NUM.format(tot.tickets_most), deltaPct(tot.tickets_most, tot.tickets_most_base), `contra ${NUM.format(tot.tickets_most_base)} de base`),
+  tile('Ticket promedio', ARS.format(tot.tp), deltaPct(tot.tp, tot.tp_base), `contra ${ARS.format(tot.tp_base)} · meta +5%`),
+  tile('Unidades por ticket', DEC.format(tot.upt), deltaPct(tot.upt, tot.upt_base), `contra ${DEC.format(tot.upt_base)} · meta +5%`),
+  tile('Tickets con un solo producto', PCT1.format(tot.pct_uno) + '%', tot.pct_uno - tot.pct_uno_base, `contra ${PCT1.format(tot.pct_uno_base)}% · meta 27%`, 'bajar', true),
+  tile('Tickets con café', PCT1.format(tot.pct_cafe) + '%', tot.pct_cafe - tot.pct_cafe_base, `contra ${PCT1.format(tot.pct_cafe_base)}% · meta 15%`, 'subir', true),
+  tile('Ticket a precios constantes', ARS.format(k.ticket_constante.valor), k.ticket_constante.var, `contra 2025, sin el efecto precio (+${PCT1.format(100 * (k.ticket_constante.indice / k.ticket_constante.indice_anterior - 1))}%)`)
+].join('');
+
+// ---- sucursales
+document.getElementById('sucs').innerHTML = [...SUC_MOSTRADOR, 'Dietetica'].map(l => {
+  const r = fila(l), n = N.sucursales[l] || {};
+  const linea = (lbl, v, d, sentido, pp) => `<dt>${lbl}</dt><dd>${v}</dd><dd>${celdaDelta(d, sentido, pp)}</dd>`;
+  const dl = SUC_MOSTRADOR.includes(l) ? `<dl>
+      ${linea('Tickets', NUM.format(r.tickets), deltaPct(r.tickets, r.tickets_base))}
+      ${linea('Ticket promedio', ARS.format(r.tp), deltaPct(r.tp, r.tp_base))}
+      ${linea('Unidades por ticket', DEC.format(r.upt), deltaPct(r.upt, r.upt_base))}
+      ${linea('Un solo producto', PCT1.format(r.pct_uno) + '%', r.pct_uno - r.pct_uno_base, 'bajar', true)}
+      ${linea('Con café', PCT1.format(r.pct_cafe) + '%', r.pct_cafe - r.pct_cafe_base, 'subir', true)}</dl>`
+    : `<dl>${linea('Tickets', NUM.format(r.tickets), deltaPct(r.tickets, r.tickets_ant))}${linea('Ventas', ARSM.format(r.ventas), deltaPct(r.ventas, r.ventas_ant))}</dl>`;
+  return `<article class="suc"><div class="top"><h3><span class="sw" style="background:var(${SUC_COLOR[l] || '--muted'})"></span>${l === 'Dietetica' ? 'Dietética' : esc(l)}</h3>${st(n.estado || 'referencia', ESTADO_KPI[n.estado || 'referencia'])}</div>
+    <span class="who" style="color:var(--muted);font-size:.8rem">${SUC_MOSTRADOR.includes(l) ? 'Contra la base previa al plan' : 'Contra la misma semana de 2025'}</span>${dl}<p>${esc(n.texto || '')}</p></article>`;
+}).join('');
+document.getElementById('tmost').innerHTML = tablaMostrador(suc.filter(r => SUC_MOSTRADOR.includes(r.lugar) || r.lugar === 'Todas'));
+
+// ---- evolución
+document.getElementById('leg-hist').innerHTML = leyendaSucursales();
+graficosHistorico(document.getElementById('hist'), DEFS_HIST);
+
+// ---- proyección (banda = rango aproximado del 95%)
+const P = DATA.historico.proyeccion || {};
+document.getElementById('proy-lede').innerHTML = `Modelo de tendencia con estacionalidad sobre los tickets mensuales. ${Object.entries(P).map(([l, p]) => `${esc(l)}: error de ajuste (MAPE) ${PCT1.format(p.mape)}%`).join(' · ')}. <span class="warn">Con un MAPE mayor a 15%, la confiabilidad es baja: usar solo como orientación.</span>`;
+const proy = document.getElementById('proy');
+proy.innerHTML = Object.keys(P).map(l => `<figure><figcaption><h3>${esc(l)}</h3><span class="note">Tickets por mes: los últimos 12 y la proyección con su rango.</span></figcaption><div class="chart" style="height:220px"><canvas id="p-${l.replace(/\W/g, '')}" aria-label="Proyección de tickets de ${esc(l)}"></canvas></div></figure>`).join('');
+const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+Object.entries(P).forEach(([l, p]) => {
+  const labels = [...p.historico, ...p.proyeccion].map(r => MES[+r.mes.slice(5) - 1] + ' ' + r.mes.slice(2, 4));
+  const nh = p.historico.length, pad = Array(nh - 1).fill(null), last = p.historico[nh - 1].valor;
+  const c = css(SUC_COLOR[l]);
+  new Chart(document.getElementById('p-' + l.replace(/\W/g, '')), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Rango alto', data: [...pad, last, ...p.proyeccion.map(r => r.rango_alto)], borderWidth: 0, pointRadius: 0, fill: '+1', backgroundColor: css('--accent-soft') },
+      { label: 'Rango bajo', data: [...pad, last, ...p.proyeccion.map(r => r.rango_bajo)], borderWidth: 0, pointRadius: 0, fill: false },
+      { label: 'Real', data: [...p.historico.map(r => r.valor), ...p.proyeccion.map(() => null)], borderColor: c, backgroundColor: c, borderWidth: 2, pointRadius: 3 },
+      { label: 'Proyección', data: [...pad, last, ...p.proyeccion.map(r => r.valor)], borderColor: c, backgroundColor: c, borderWidth: 2, borderDash: [5, 4], pointRadius: 3 }] },
+    options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      scales: { x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkipPadding: 8 } }, y: { beginAtZero: true, ticks: { callback: v => NUM.format(v) } } },
+      plugins: { tooltip: { filter: i => i.raw != null, callbacks: { label: i => `${i.dataset.label}: ${NUM.format(i.raw)}` } } } }
+  });
+});
+
+// ---- plan: estrategias de mostrador
+const ESTR_MOSTRADOR = ['E2', 'E3', 'E4', 'E5', 'E7'];
+document.getElementById('tplan').innerHTML = `<thead><tr><th>Estrategia</th><th>Indicador</th><th class="r">Actual</th><th class="r">Evaluado</th><th class="r">Meta</th><th>Estado</th></tr></thead><tbody>` +
+  ESTR_MOSTRADOR.map(id => { const e = ESTR[id];
+    const kpis = e.kpis.map(x => KPI[x]);
+    if (id === 'E3') kpis.unshift(KPI.ticket_promedio);
+    return kpis.map((d, i) => { const v = k[d.id];
+      return `<tr>${i ? '' : `<td rowspan="${kpis.length}"><strong>${id}.</strong> ${esc(e.titulo)}<span class="sub">Prioridad ${e.prioridad}</span></td>`}
+        <td>${esc(d.nombre)}</td><td class="r">${fmtValor(d, v.valor)}</td><td class="r">${v.obs != null ? fmtObjetivo(d, v.obs) : '—'}</td>
+        <td class="r">${fmtObjetivo(d, d.meta, true)}</td><td>${st(v.estado, ESTADO_KPI[v.estado])}</td></tr>`; }).join(''); }).join('') + '</tbody>';
+
+// ---- estrategias
+document.getElementById('estr').innerHTML = N.estrategias.map((s, i) => `<article class="strat"><div class="top"><h3>${i + 1}. ${esc(s.t)}</h3><span class="pill ${s.p}">Prioridad ${s.p}</span></div>
+  <dl class="chain"><div><dt>Dato</dt><dd>${esc(s.dato)}</dd></div><div><dt>Acción</dt><dd>${esc(s.acc)}</dd></div>
+  <div><dt>Impacto estimado</dt><dd class="impact">${esc(s.imp)}</dd></div><div><dt>KPI</dt><dd>${esc(s.kpi)}</dd></div></dl></article>`).join('');
+
+document.getElementById('hip').innerHTML = [['Hechos de los datos', N.hechos], ['Hipótesis para confirmar', N.hipotesis]]
+  .map(([t, l]) => `<div><h3>${t}</h3><ul>${l.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('');
+
+document.getElementById('method').innerHTML = `<ul>
+  <li>Fuente: base de ventas (<span class="num">panacea_sales_v2</span>). Ventas = suma de subtotales; tickets = comprobantes distintos; unidades = suma de cantidades. Ticket promedio = ventas / tickets.</li>
+  <li>Mostrador = clientes genéricos (ids ${PLAN.definiciones.clientes_mostrador.join(', ')}). Dietética vende solo a clientes identificados.</li>
+  <li>${esc(PLAN.definiciones.nota_base)}</li>
+  <li>${esc(PLAN.definiciones.nota_indice)} Ticket a precios constantes = ticket / índice × 100.</li>
+  <li>${esc(PLAN.definiciones.comparacion_anual)} Solo se comparan las sucursales que vendieron en los dos años: Córdoba operó del 17/10/2025 al 18/03/2026 y Villa General Belgrano abrió el 25/09/2026.</li>
+  <li>Los impactos se estiman como tickets recuperados × ticket promedio actual de la sucursal × 4,33 semanas por mes.</li></ul>`;
+document.getElementById('foot').textContent = `Panacea · reporte para el equipo de ventas · ${DATA.generado.slice(0, 10).split('-').reverse().join('/')}. Datos embebidos, sin conexión a la base.`;
+</script>

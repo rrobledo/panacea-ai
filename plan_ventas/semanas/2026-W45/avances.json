@@ -1,0 +1,121 @@
+{
+  "semana": "2026-W45",
+  "acciones": {
+    "E1.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E1.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E1.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E1.4": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E2.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E2.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E2.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E3.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E3.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E3.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E4.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E4.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E4.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E5.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E5.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E5.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E6.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E6.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E6.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E7.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E7.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E7.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E8.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E8.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E8.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E9.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E9.2": {
+      "estado": "pendiente",
+      "nota": ""
+    }
+  },
+  "kpis_manuales": {
+    "tickets_con_pack": null,
+    "pct_sobrante": null,
+    "dias_produccion_cargada": null
+  },
+  "hechos": [],
+  "decisiones": [],
+  "proxima_semana": []
+}

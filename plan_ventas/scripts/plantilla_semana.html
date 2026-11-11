@@ -1,0 +1,180 @@
+<meta charset="utf-8">
+<title>Seguimiento semanal Panacea</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+/*__CSS__*/
+</style>
+
+<div class="wrap">
+<header class="top">
+  <span class="eyebrow">Panacea · Seguimiento semanal del plan</span>
+  <h1 id="titulo"></h1>
+  <div class="meta" id="meta"></div>
+  <div style="display:grid;gap:6px"><div class="timeline" id="timeline"></div><div class="timeline-lbl" id="timeline-lbl"></div></div>
+</header>
+
+<section aria-labelledby="h-res">
+  <div class="head"><span class="eyebrow">Resumen</span><h2 id="h-res">La semana en breve</h2></div>
+  <div class="callout" id="resumen"></div>
+  <div class="kpis" id="tiles"></div>
+</section>
+
+<section aria-labelledby="h-dia" id="sec-dia">
+  <figure>
+    <figcaption><h3 id="h-dia">Tickets por día contra la misma semana de 2025</h3>
+      <span class="note" id="dia-note"></span></figcaption>
+    <div class="legend"><span><i style="background:var(--s1)"></i>2026</span><span><i style="background:var(--s-prev)"></i>2025</span></div>
+    <div class="chart"><canvas id="cDia" aria-label="Tickets por día, 2026 contra 2025"></canvas></div>
+  </figure>
+</section>
+
+<section aria-labelledby="h-suc" id="sec-suc">
+  <div class="head"><span class="eyebrow">Sucursales</span><h2 id="h-suc">Por lugar de venta</h2>
+    <p id="suc-note"></p></div>
+  <div class="tbl"><table id="tsuc"></table></div>
+  <div class="head"><h3>Mostrador contra la base previa al plan</h3>
+    <p>Comparación contra el promedio de las semanas posteriores al último aumento de precios: mismos precios, así que la diferencia la explica la venta. Las diferencias en porcentajes se expresan en puntos (pp).</p></div>
+  <div class="tbl"><table id="tmost"></table></div>
+</section>
+
+<section aria-labelledby="h-kpi">
+  <div class="head"><span class="eyebrow">Indicadores del plan</span><h2 id="h-kpi">Contra la meta</h2>
+    <p>La columna “Evaluado” es lo que se compara con la base y la meta: la variación interanual o el valor de la semana.</p></div>
+  <div class="tbl"><table id="tkpi"></table></div>
+</section>
+
+<section aria-labelledby="h-acc">
+  <div class="head"><span class="eyebrow">Acciones</span><h2 id="h-acc">Qué se hizo y qué falta</h2></div>
+  <div class="split one" id="acc"></div>
+</section>
+
+<section aria-labelledby="h-not">
+  <div class="head"><span class="eyebrow">Notas del equipo</span><h2 id="h-not">Hechos, decisiones y próximos pasos</h2></div>
+  <div class="split" id="notas"></div>
+</section>
+
+<section aria-labelledby="h-cli" id="sec-cli">
+  <div class="head"><span class="eyebrow">Mayoristas</span><h2 id="h-cli">Clientes recuperados y nuevos</h2></div>
+  <div class="split" id="cli"></div>
+</section>
+
+<footer id="foot"></footer>
+</div>
+
+<script>
+/*__DATA__*/
+/*__JS__*/
+const s = DATA.semanas[DATA.actual];
+const prev = DATA.semanas.slice(0, DATA.actual).filter(x => x.tiene_datos).pop();
+const prevSeg = DATA.semanas[DATA.actual - 1];
+const k = s.kpis;
+
+document.title = s.n < 1 ? `Línea base ${s.semana} · Panacea` : `Semana ${s.n} · Panacea`;
+document.getElementById('titulo').textContent = s.n < 1 ? `Semana previa al plan: del ${rango(s.desde, s.corte || s.hasta)}` : `Semana ${s.n}: del ${rango(s.desde, s.hasta)}`;
+document.getElementById('meta').innerHTML = [
+  `<span class="num">${s.semana}</span>`,
+  s.tiene_datos ? `<span>Datos hasta el <span class="num">${fechaCorta(s.datos_hasta)}</span>${s.completa ? '' : ' · <span class="down">semana incompleta</span>'}</span>` : '<span>Sin datos de ventas cargados</span>',
+  DATA.urls.general ? `<span><a href="${DATA.urls.general}" target="_blank" rel="noopener">Ver el plan completo</a></span>` : ''
+].join('');
+timeline(Math.max(s.n, 0));
+
+// ---- resumen automático + hechos cargados
+const conMeta = PLAN.kpis.filter(x => x.meta != null && k[x.id].estado !== 'sin_dato');
+const enMeta = conMeta.filter(x => k[x.id].estado === 'en_meta');
+const cerradasAhora = Object.entries(s.acciones).filter(([id, a]) => a.estado === 'hecha' && prevSeg?.acciones[id]?.estado !== 'hecha').map(([id]) => id);
+const proximaIso = (() => { const d = new Date(s.desde + 'T12:00:00'); d.setDate(d.getDate() + 7);
+  const t = new Date(d); t.setDate(t.getDate() + 1); t.setDate(t.getDate() + 3 - ((t.getDay() + 6) % 7)); const y = t.getFullYear();
+  return `${y}-W${String(Math.ceil(((t - new Date(y, 0, 1)) / 864e5 + 1) / 7)).padStart(2, '0')}`; })();
+const items = [];
+if (s.tiene_datos) items.push(`Tickets ${signo(k.tickets.var)} y unidades ${signo(k.unidades.var)} contra la misma semana de 2025. Ventas en pesos ${signo(k.ventas.var)}.`);
+if (conMeta.length) items.push(`${enMeta.length} de ${conMeta.length} indicadores con meta están en meta${enMeta.length ? ': ' + enMeta.map(x => x.nombre.toLowerCase()).join(', ') : ''}.`);
+items.push(`${cerradasAhora.length ? cerradasAhora.length + (cerradasAhora.length > 1 ? ' acciones completadas' : ' acción completada') + ' esta semana' : 'Ninguna acción completada esta semana'} y ${s.vencidas.length} vencida${s.vencidas.length === 1 ? '' : 's'}.`);
+s.hechos.forEach(h => items.push(esc(h)));
+document.getElementById('resumen').innerHTML = `<ul>${items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+
+const tiles = ['ventas', 'tickets', 'unidades', 'ticket_promedio'];
+document.getElementById('tiles').innerHTML = s.tiene_datos ? tiles.map(id => {
+  const v = k[id], d = KPI[id];
+  return `<div class="kpi"><span class="lbl">${id === 'ventas' ? 'Ventas' : id === 'ticket_promedio' ? 'Ticket promedio' : id === 'tickets' ? 'Tickets' : 'Unidades'}</span>
+    <span class="val">${fmtValor(d, v.valor)}</span>
+    <span class="cmp"><span class="delta ${id === 'ventas' || id === 'ticket_promedio' ? 'flat' : clsVar(v.var)}">${v.var != null ? signo(v.var) : '—'}</span> contra ${fmtValor(d, v.anterior)} en 2025</span></div>`;
+}).join('') : '';
+
+// ---- gráfico diario
+if (s.diario.length) {
+  chartDefaults();
+  const dias = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+  document.getElementById('dia-note').textContent = 'Solo sucursales comparables. Los tickets no dependen del precio, a diferencia de las ventas en pesos.';
+  new Chart(document.getElementById('cDia'), {
+    type: 'bar',
+    data: { labels: s.diario.map(r => { const d = new Date(r.fecha + 'T12:00:00'); return `${dias[d.getDay()]} ${d.getDate()}`; }),
+      datasets: [
+        { label: '2026', data: s.diario.map(r => r.tickets), backgroundColor: css('--s1'), borderRadius: 4, borderSkipped: 'start', categoryPercentage: 0.7, barPercentage: 0.9 },
+        { label: '2025', data: s.diario.map(r => r.tickets_ant), backgroundColor: css('--s-prev'), borderRadius: 4, borderSkipped: 'start', categoryPercentage: 0.7, barPercentage: 0.9 }] },
+    options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { callback: v => NUM.format(v) } } },
+      plugins: { tooltip: { callbacks: { label: c => `${c.dataset.label}: ${NUM.format(c.raw)} tickets` } } } }
+  });
+} else document.getElementById('sec-dia').hidden = true;
+
+// ---- sucursales
+const suc = s.detalle?.sucursales || [];
+if (suc.length) {
+  document.getElementById('suc-note').textContent = `La comparación contra 2025 usa solo las sucursales que vendieron en las dos semanas (${s.detalle.sucursales_comparables.join(', ')}). Las demás se muestran como referencia.`;
+  const cel = (a, b, f) => `<td class="r">${f(a)}</td><td class="r">${b ? f(b) : '—'}</td><td class="r">${a && b ? `<span class="delta ${clsVar(100 * (a / b - 1))}">${signo(100 * (a / b - 1))}</span>` : '—'}</td>`;
+  document.getElementById('tsuc').innerHTML = `<thead><tr><th>Sucursal</th><th class="r">Tickets</th><th class="r">2025</th><th class="r">Var.</th><th class="r">Unidades</th><th class="r">2025</th><th class="r">Var.</th><th class="r">Ventas</th><th class="r">2025</th><th class="r">Var.</th></tr></thead><tbody>` +
+    suc.filter(r => r.lugar !== 'Todas').map(r => `<tr><td>${esc(r.lugar)}${r.comparable ? '' : `<span class="sub">${r.tickets ? 'Nueva: no se compara' : 'Sin ventas este año: no se compara'}</span>`}</td>${cel(r.tickets, r.tickets_ant, v => NUM.format(v))}${cel(r.unidades, r.unidades_ant, v => NUM.format(v))}${cel(r.ventas, r.ventas_ant, v => ARSM.format(v))}</tr>`).join('') + '</tbody>';
+  document.getElementById('tmost').innerHTML = tablaMostrador(suc.filter(r => SUC_MOSTRADOR.includes(r.lugar) || r.lugar === 'Todas'));
+} else document.getElementById('sec-suc').hidden = true;
+
+// ---- tabla de indicadores
+const filas = [['General', PLAN.kpis.filter(x => x.estrategia === 'General')],
+  ...PLAN.estrategias.map(e => [`${e.id}. ${e.titulo}`, e.kpis.map(id => KPI[id])])];
+document.getElementById('tkpi').innerHTML = `<thead><tr><th>Indicador</th><th class="r">Esta semana</th><th class="r">2025</th><th class="r">Evaluado</th><th class="r">Semana anterior</th><th class="r">Base</th><th class="r">Meta</th><th>Estado</th></tr></thead><tbody>` +
+  filas.map(([g, ks]) => `<tr class="grp"><td colspan="8">${esc(g)}</td></tr>` + ks.map(d => {
+    const v = k[d.id], p = prev?.kpis[d.id];
+    const actual = d.modo === 'acumulado' && v.de != null ? `${fmtValor(d, v.valor)} de ${v.de}` : fmtValor(d, v.valor);
+    const ev = v.obs != null ? `<span class="delta ${{ en_meta: 'up', sin_mejora: 'down' }[v.estado] || 'flat'}">${fmtObjetivo(d, v.obs)}</span>` : '—';
+    return `<tr><td>${esc(d.nombre)}${d.nota ? `<span class="sub">${esc(d.nota)}</span>` : ''}${d.fuente === 'manual' ? '<span class="sub">Carga manual</span>' : ''}</td>
+      <td class="r">${actual}</td><td class="r">${v.anterior != null ? fmtValor(d, v.anterior) : '—'}</td><td class="r">${ev}</td>
+      <td class="r">${p?.obs != null ? fmtObjetivo(d, p.obs) : '—'}</td><td class="r">${v.base != null ? fmtValor(d, v.base) : fmtObjetivo(d, d.base)}</td><td class="r">${fmtObjetivo(d, d.meta, true)}</td>
+      <td>${st(v.estado, ESTADO_KPI[v.estado])}</td></tr>`;
+  }).join('')).join('') + '</tbody>';
+
+// ---- acciones
+const li = id => { const a = ACC[id], est = estadoAccion(s, id), nota = s.acciones[id]?.nota;
+  return `<li><span class="id">${id}</span><span>${esc(a.texto)}<span class="when"> · objetivo ${a.semana}</span></span>${st(est, ESTADO_ACC[est])}${nota ? `<span class="nota">${esc(nota)}</span>` : ''}</li>`; };
+const bloques = [
+  ['Completadas esta semana', cerradasAhora, 'Ninguna acción se cerró esta semana.'],
+  ['Vencidas', s.vencidas, 'No hay acciones atrasadas.'],
+  ['En curso o bloqueadas', Object.keys(s.acciones).filter(id => ['en_curso', 'bloqueada'].includes(s.acciones[id].estado) && !s.vencidas.includes(id)), 'Nada en curso.'],
+  ['Para la semana que viene', Object.keys(ACC).filter(id => ACC[id].semana === proximaIso && !['hecha', 'descartada'].includes(s.acciones[id]?.estado)), 'No hay acciones con objetivo la semana próxima.']
+];
+document.getElementById('acc').innerHTML = bloques.map(([t, ids, vacio]) =>
+  `<div><h3>${t}</h3>${ids.length ? `<ul class="acts">${ids.map(li).join('')}</ul>` : `<p class="empty">${vacio}</p>`}</div>`).join('');
+
+// ---- notas
+const lista = (arr, vacio) => arr.length ? `<ul>${arr.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : `<p class="empty">${vacio}</p>`;
+document.getElementById('notas').innerHTML = [
+  ['Decisiones', lista(s.decisiones, 'Sin decisiones registradas.')],
+  ['Próxima semana', lista(s.proxima_semana, 'Sin próximos pasos registrados.')]
+].map(([t, h]) => `<div><h3>${t}</h3>${h}</div>`).join('');
+
+// ---- mayoristas
+const det = s.detalle || {};
+const tabla = (arr, vacio) => arr?.length ? `<table><tbody>${arr.map(r => `<tr><td>${esc(r.cliente)}<span class="sub">desde el ${fechaCorta(r.primera)}</span></td><td class="r">${ARS.format(r.ventas || 0)}</td></tr>`).join('')}</tbody></table>` : `<p class="empty">${vacio}</p>`;
+if (s.tiene_datos) {
+  const obj = DATA.objetivo?.clientes || [];
+  document.getElementById('cli').innerHTML = [
+    [`Inactivos que volvieron (${(det.reactivados || []).length} de ${obj.length})`, tabla(det.reactivados, 'Ninguno de los mayoristas objetivo volvió a comprar todavía.') +
+      (obj.length ? `<p class="empty">Lista objetivo: ${obj.map(c => esc(c.cliente)).join(', ')}.</p>` : '')],
+    [`Clientes nuevos desde el ${fechaCorta(PLAN.inicio)}`, tabla(det.nuevos, 'Todavía no hay clientes nuevos.') +
+      (det.mayor_cliente ? `<p class="empty">Mayor cliente de las últimas 4 semanas: ${esc(det.mayor_cliente)} (${PCT1.format(k.peso_mayor_cliente.valor)}% de la venta mayorista).</p>` : '')]
+  ].map(([t, h]) => `<div><h3>${t}</h3>${h}</div>`).join('');
+} else document.getElementById('sec-cli').hidden = true;
+
+document.getElementById('foot').textContent = `Panacea · ${PLAN.nombre} · seguimiento ${s.semana} · generado ${DATA.generado.slice(0, 10).split('-').reverse().join('/')}. Datos embebidos, sin conexión a la base.`;
+</script>

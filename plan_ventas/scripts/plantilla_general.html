@@ -1,0 +1,181 @@
+<meta charset="utf-8">
+<title>Plan comercial Panacea</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+/*__CSS__*/
+</style>
+
+<div class="wrap">
+<header class="top">
+  <span class="eyebrow">Panacea · Seguimiento del plan</span>
+  <h1 id="titulo"></h1>
+  <p class="lede" id="sub"></p>
+  <div class="meta" id="meta"></div>
+  <div style="display:grid;gap:6px"><div class="timeline" id="timeline"></div><div class="timeline-lbl" id="timeline-lbl"></div></div>
+</header>
+
+<section aria-labelledby="h-est">
+  <div class="head"><span class="eyebrow">Estado general</span><h2 id="h-est">Cómo va el plan</h2></div>
+  <div class="kpis" id="tiles"></div>
+  <div class="callout" id="riesgos"></div>
+</section>
+
+<section aria-labelledby="h-str">
+  <div class="head"><span class="eyebrow">Estrategias</span><h2 id="h-str">Avance por estrategia</h2>
+    <p>La barra muestra las acciones completadas. Debajo, el estado de cada indicador en la última semana con datos.</p></div>
+  <div class="strats" id="strats"></div>
+</section>
+
+<section aria-labelledby="h-suc">
+  <div class="head"><span class="eyebrow">Sucursales</span><h2 id="h-suc">Cómo está cada sucursal</h2>
+    <p id="suc-lede"></p></div>
+  <div class="tbl"><table id="tmost"></table></div>
+  <div class="legend" id="leg-hist"></div>
+  <div class="strats" id="hist"></div>
+</section>
+
+<section aria-labelledby="h-evo">
+  <div class="head"><span class="eyebrow">Indicadores</span><h2 id="h-evo">Evolución semana a semana</h2>
+    <p>En los indicadores interanuales se grafica la variación contra la misma semana de 2025. La línea punteada es la meta.</p></div>
+  <div class="legend" id="leg-evo"><span><i style="background:var(--s1)"></i>Valor semanal</span><span><i class="dash"></i>Meta</span></div>
+  <div id="evo"></div>
+</section>
+
+<section aria-labelledby="h-gantt">
+  <div class="head"><span class="eyebrow">Cronograma</span><h2 id="h-gantt">Acciones por semana objetivo</h2>
+    <p>Cada punto marca la semana en que la acción debería estar hecha. El color indica su estado en el último seguimiento.</p></div>
+  <div class="legend" id="leg-gantt"></div>
+  <div class="tbl"><table class="gantt" id="gantt"></table></div>
+</section>
+
+<section aria-labelledby="h-sem">
+  <div class="head"><span class="eyebrow">Seguimientos</span><h2 id="h-sem">Reportes semanales</h2></div>
+  <ul class="weeks" id="weeks"></ul>
+</section>
+
+<section aria-labelledby="h-met">
+  <div class="head"><span class="eyebrow">Nota metodológica</span><h2 id="h-met">Cómo se mide</h2></div>
+  <div class="method" id="method"></div>
+</section>
+<footer id="foot"></footer>
+</div>
+
+<script>
+/*__DATA__*/
+/*__JS__*/
+const S = DATA.semanas;
+const conDatos = S.filter(s => s.tiene_datos);
+const ult = conDatos[conDatos.length - 1];
+const ultSeg = S[S.length - 1];
+const n = hoyN();
+
+document.getElementById('titulo').textContent = PLAN.nombre;
+document.getElementById('sub').textContent = PLAN.subtitulo + '.';
+document.getElementById('meta').innerHTML = [
+  `<span>Período: <span class="num">${fechaCorta(PLAN.inicio)}/${PLAN.inicio.slice(0,4)} – ${fechaCorta(PLAN.fin)}/${PLAN.fin.slice(0,4)}</span></span>`,
+  ult ? `<span>Datos de ventas hasta el <span class="num">${fechaCorta(ult.datos_hasta)}</span></span>` : '<span>Sin datos semanales todavía</span>',
+  `<span>Basado en el <a href="${PLAN.origen.artifact}" target="_blank" rel="noopener">reporte de estrategia del ${fechaCorta(PLAN.origen.fecha)}</a></span>`
+].join('');
+timeline(n);
+
+// ---- tarjetas de estado
+const todas = Object.keys(ACC);
+const hechas = ultSeg ? todas.filter(id => ['hecha', 'descartada'].includes(ultSeg.acciones[id]?.estado)).length : 0;
+const vencidas = ultSeg ? ultSeg.vencidas.length : 0;
+const conMeta = PLAN.kpis.filter(k => k.meta != null);
+const enMeta = ult ? conMeta.filter(k => ult.kpis[k.id].estado === 'en_meta').length : 0;
+const medidos = ult ? conMeta.filter(k => ult.kpis[k.id].estado !== 'sin_dato').length : 0;
+document.getElementById('tiles').innerHTML = [
+  ['Acciones completadas', `${hechas} de ${todas.length}`, `${Math.round(100 * hechas / todas.length)}% del plan`],
+  ['Acciones vencidas', NUM.format(vencidas), vencidas ? 'Pasaron su semana objetivo sin cerrarse' : 'Ninguna atrasada'],
+  ['Indicadores en meta', ult ? `${enMeta} de ${medidos}` : '—', ult ? `Semana ${ult.n}, ${rango(ult.desde, ult.hasta)}` : 'Se calcula con la primera semana'],
+  ['Tickets contra 2025', ult?.kpis.tickets.var != null ? signo(ult.kpis.tickets.var) : '—', 'Última semana · meta ≥ ±0,0%']
+].map(([l, v, c]) => `<div class="kpi"><span class="lbl">${l}</span><span class="val">${v}</span><span class="cmp">${c}</span></div>`).join('');
+document.getElementById('riesgos').innerHTML = `<strong>A tener en cuenta</strong><ul>${PLAN.riesgos.map(r => `<li>${esc(r)}</li>`).join('')}</ul>`;
+
+// ---- estrategias
+document.getElementById('strats').innerHTML = PLAN.estrategias.map(e => {
+  const tot = e.acciones.length;
+  const ok = ultSeg ? e.acciones.filter(a => ['hecha', 'descartada'].includes(ultSeg.acciones[a.id]?.estado)).length : 0;
+  const venc = ultSeg ? e.acciones.filter(a => ultSeg.vencidas.includes(a.id)).length : 0;
+  const kp = e.kpis.map(id => {
+    const k = KPI[id], v = ult?.kpis[id];
+    const val = v?.obs != null ? fmtObjetivo(k, v.obs) : '—';
+    return `<li><span>${esc(k.nombre)}</span><span class="num">${val}</span>${st(v?.estado || 'sin_dato', ESTADO_KPI[v?.estado || 'sin_dato'])}</li>`;
+  }).join('');
+  return `<article class="strat">
+    <div class="top"><h3>${e.id}. ${esc(e.titulo)}</h3><span class="pill ${e.prioridad}">${e.prioridad}</span></div>
+    <span class="who">Responsable: ${esc(e.responsable)}${e.impacto_anual_m ? ` · impacto estimado ≈ $${DEC.format(e.impacto_anual_m)} M/año` : ''}</span>
+    <div style="display:grid;gap:4px"><div class="bar" role="img" aria-label="${ok} de ${tot} acciones completadas"><b style="width:${100 * ok / tot}%"></b></div>
+      <span class="who">${ok} de ${tot} acciones completadas${venc ? ` · <span class="down">${venc} vencida${venc > 1 ? 's' : ''}</span>` : ''}</span></div>
+    <ul>${kp}</ul></article>`;
+}).join('');
+
+// ---- sucursales
+const sucUlt = ult?.detalle?.sucursales || [];
+document.getElementById('suc-lede').textContent = ult ? `Mostrador en la semana ${ult.semana} (${rango(ult.desde, ult.hasta)}) contra la base previa al plan, y evolución semanal desde julio. Dietética vende a clientes identificados y no tiene mostrador.` : 'Sin semanas cargadas.';
+document.getElementById('tmost').innerHTML = sucUlt.length ? tablaMostrador(sucUlt.filter(r => SUC_MOSTRADOR.includes(r.lugar) || r.lugar === 'Todas')) : '';
+document.getElementById('leg-hist').innerHTML = leyendaSucursales();
+graficosHistorico(document.getElementById('hist'), DEFS_HIST);
+
+// ---- evolución
+const evo = document.getElementById('evo');
+const serie = PLAN.kpis.filter(k => conDatos.some(s => s.kpis[k.id].obs != null));
+if (!serie.length) {
+  document.getElementById('leg-evo').hidden = true;
+  evo.innerHTML = '<p class="empty">Todavía no hay semanas cargadas. Los gráficos aparecen cuando se procesa la primera semana del plan (semana 1: del 2 al 8 de noviembre).</p>';
+} else {
+  evo.className = 'strats';
+  evo.innerHTML = serie.map(k => `<figure><figcaption><h3>${esc(k.nombre)}</h3><span class="note">${etiquetaModo(k)} · meta ${fmtObjetivo(k, k.meta, true)}</span></figcaption>
+    <div class="chart" style="height:180px"><canvas id="c-${k.id}" aria-label="${esc(k.nombre)} por semana"></canvas></div></figure>`).join('');
+  chartDefaults();
+  serie.forEach(k => {
+    const pts = conDatos.map(s => s.kpis[k.id].obs);
+    const ds = [{ data: pts, borderColor: css('--s1'), backgroundColor: css('--s1'), borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, tension: 0.2, spanGaps: true }];
+    if (k.meta != null) ds.push({ data: pts.map(() => k.meta), borderColor: css('--fg-2'), borderWidth: 1.5, borderDash: [4, 3], pointRadius: 0, pointHoverRadius: 0 });
+    new Chart(document.getElementById('c-' + k.id), {
+      type: 'line', data: { labels: conDatos.map(s => 'S' + s.n), datasets: ds },
+      options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+        scales: { x: { grid: { display: false } }, y: { grace: '10%', min: k.modo === 'acumulado' ? 0 : undefined, ticks: { callback: v => ['interanual', 'vs_base'].includes(k.modo) ? v + '%' : fmtValor(k, v) } } },
+        plugins: { tooltip: { callbacks: { label: c => (c.datasetIndex ? 'Meta ' : '') + fmtObjetivo(k, c.raw) } } } }
+    });
+  });
+}
+
+// ---- cronograma
+const semanasPlan = Array.from({ length: DATA.total_semanas }, (_, i) => {
+  const d = new Date(PLAN.inicio + 'T12:00:00'); d.setDate(d.getDate() + 7 * i);
+  const t = new Date(d); t.setDate(t.getDate() + 1); t.setDate(t.getDate() + 3 - ((t.getDay() + 6) % 7));
+  const y = t.getFullYear(), w = Math.ceil(((t - new Date(y, 0, 1)) / 864e5 + 1) / 7);
+  return { iso: `${y}-W${String(w).padStart(2, '0')}`, n: i + 1, desde: d.toISOString().slice(0, 10) };
+});
+const cab = semanasPlan.map(s => `<th class="w${s.n === n ? ' now' : ''}" title="${s.iso}">S${s.n}<br>${fechaCorta(s.desde)}</th>`).join('');
+document.getElementById('gantt').innerHTML = `<thead><tr><th>Acción</th>${cab}</tr></thead><tbody>` + PLAN.estrategias.map(e =>
+  `<tr class="grp"><td colspan="${DATA.total_semanas + 1}">${e.id}. ${esc(e.titulo)}</td></tr>` + e.acciones.map(a => {
+    const est = ultSeg ? estadoAccion(ultSeg, a.id) : 'pendiente';
+    return `<tr><td class="a"><span class="num" style="color:var(--muted)">${a.id}</span> ${esc(a.texto)}</td>` + semanasPlan.map(s =>
+      `<td class="c${s.n === n ? ' now' : ''}">${s.iso === a.semana ? `<span class="mk ${est}" title="${ESTADO_ACC[est]}" aria-label="${ESTADO_ACC[est]}"></span>` : ''}</td>`).join('') + '</tr>';
+  }).join('')).join('') + '</tbody>';
+document.getElementById('leg-gantt').innerHTML =
+  ['pendiente', 'en_curso', 'hecha', 'vencida'].map(e => st(e, ESTADO_ACC[e])).join('');
+
+// ---- semanas
+const weeks = document.getElementById('weeks');
+weeks.innerHTML = S.length ? S.slice().reverse().map(s => {
+  const hk = Object.values(s.kpis).filter(v => v.estado === 'en_meta').length;
+  const link = s.url ? `<a href="${s.url}" target="_blank" rel="noopener">Abrir reporte</a>` : `<span class="empty">reporte_semana_${s.semana}.html</span>`;
+  return `<li><span class="w">${s.semana} · semana ${s.n}</span><strong>${rango(s.desde, s.hasta)}</strong>
+    <span class="who" style="color:var(--fg-2);font-size:.88rem">${s.tiene_datos ? `${hk} indicadores en meta · ${s.vencidas.length} acciones vencidas` : 'Solo avances cargados, sin datos de ventas'}</span>${link}</li>`;
+}).join('') : '<li class="empty">Todavía no hay seguimientos semanales.</li>';
+
+document.getElementById('method').innerHTML = `<ul>
+  <li>Los datos salen de la base de ventas (<span class="num">panacea_sales_v2</span>). Ventas = suma de subtotales, tickets = comprobantes distintos y unidades = suma de cantidades.</li>
+  <li>${esc(PLAN.definiciones.comparacion_anual)}</li>
+  <li>Mostrador son los clientes genéricos (ids ${PLAN.definiciones.clientes_mostrador.join(', ')}). El resto son clientes identificados, la mayoría mayoristas.</li>
+  <li>Los indicadores de producción (sobrante y días cargados) y los packs se cargan a mano cada semana en <span class="num">avances.json</span>.</li>
+  <li>Estados: <em>en meta</em> si alcanza el objetivo; <em>mejora</em> si está mejor que la base sin llegar a la meta; <em>sin mejora</em> si está igual o peor que la base.</li></ul>`;
+document.getElementById('foot').textContent = `Panacea · ${PLAN.nombre} · actualizado ${DATA.generado.slice(0, 10).split('-').reverse().join('/')}. Los datos están embebidos en la página, sin conexión a la base.`;
+</script>

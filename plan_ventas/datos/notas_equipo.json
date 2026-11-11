@@ -1,0 +1,84 @@
+{
+  "titulo": "Primera semana del plan: el ticket sube, la gente no vuelve",
+  "bajada": "Primera semana de ejecución del plan comercial (domingo 25/10 al sábado 31/10), por sucursal. Se compara contra la base previa al plan: las semanas entre el aumento del 28/09 y el 24/10, así la inflación no tapa lo que pasa en el mostrador.",
+  "resumen": [
+    "<strong>El ticket sube, pero todavía no llega a la meta.</strong> El ticket de mostrador quedó en $16.171, 2,9% sobre la base previa al plan ($15.721). La meta es +5%. Los precios subieron 1,9% en el mismo período, así que la mejora real es chica.",
+    "<strong>Entra menos gente.</strong> Hubo 511 tickets de mostrador contra 627 de base (−18,5%). La caída empezó la semana anterior al plan (568 tickets del 18 al 24/10), así que no la provocó el plan, pero tampoco la frenó.",
+    "<strong>El café es lo que mejor funcionó:</strong> está en el 16,4% de los tickets contra 12,6% de base, ya por encima de la meta de 15%. En Carlos Paz pasó de 4,8% a 13,5%.",
+    "<strong>Villa General Belgrano es la alerta más urgente:</strong> 146, 111 y 72 tickets en las últimas tres semanas (−43% contra la base). También bajan su ticket y sus unidades por ticket.",
+    "<strong>Villa Allende mejora en productos por ticket:</strong> el ticket sube 10,7% y las unidades 5,4% contra la base, y los tickets con un solo producto bajaron de 44,1% a 40,5%. Pero tiene 15% menos tickets."
+  ],
+  "sucursales": {
+    "Carlos Paz": {
+      "estado": "sin_mejora",
+      "texto": "266 tickets: 10% menos que la base y 18% menos que la misma semana de 2025. El ticket ($18.166) y las unidades por ticket (4,74) quedaron levemente debajo de la base. Lo positivo: el café pasó de 4,8% a 13,5% de los tickets."
+    },
+    "Villa Allende": {
+      "estado": "mejora",
+      "texto": "Es la que más mejoró dentro del ticket: $14.877 (+10,7% contra la base), 2,97 unidades (+5,4%) y un solo producto en el 40,5% de los tickets (base 44,1%). El problema es la cantidad: 173 tickets, 15% abajo de la base y 5,5% abajo de 2025."
+    },
+    "Villa General Belgrano": {
+      "estado": "sin_mejora",
+      "texto": "Abrió el 25/09. Tuvo entre 126 y 146 tickets por semana y cayó a 72. El ticket bajó a $11.912 (−8%) y las unidades por ticket de 3,5 a 2,8. Sigue con el café más alto (29%)."
+    },
+    "Dietetica": {
+      "estado": "referencia",
+      "texto": "Vende solo a clientes identificados, sin mostrador: 13 tickets y $1,5 M en la semana, 12,6% menos que en 2025. Se sigue con los indicadores de mayoristas (E1 y E6)."
+    }
+  },
+  "estrategias": [
+    {
+      "t": "Recuperar los tickets de Villa General Belgrano",
+      "p": "alta",
+      "dato": "Pasó de 146 a 72 tickets por semana en dos semanas (−43% contra la base previa al plan). El ticket bajó 8% y las unidades por ticket 20%.",
+      "acc": "Esta semana, relevar con el encargado horarios, faltantes y competencia, y revisar que todas las ventas se carguen. Después, acción de visita con café + medialunas, que es su producto fuerte.",
+      "imp": "Volver a 126 tickets por semana ≈ $2,8 M/mes",
+      "kpi": "Tickets semanales contra la base (126)"
+    },
+    {
+      "t": "Frenar la baja de tickets en Carlos Paz y Villa Allende",
+      "p": "alta",
+      "dato": "Contra la base previa al plan, Carlos Paz −10% (266 contra 297) y Villa Allende −15% (173 contra 204). Contra 2025: −18% y −5,5%.",
+      "acc": "Adelantar la tarjeta de sellos (E2) y extenderla a Carlos Paz. Promo en los días y horarios más flojos (E7). El domingo 25/10 tuvo 24 tickets contra 42 en 2025.",
+      "imp": "Volver a la base ≈ $4,4 M/mes ($2,4 M Carlos Paz + $2,0 M Villa Allende)",
+      "kpi": "Tickets semanales por sucursal contra la base"
+    },
+    {
+      "t": "Sostener y extender el café",
+      "p": "media",
+      "dato": "El café pasó de 12,6% a 16,4% de los tickets en la primera semana. En Carlos Paz, de 4,8% a 13,5%.",
+      "acc": "Identificar qué lo movió en Carlos Paz (cartel, combo o sugerencia en caja) y mantenerlo. Llevar lo mismo a Villa Allende, que está en 15,6%.",
+      "imp": "Llevar Carlos Paz y Villa Allende al 20% ≈ 25 tickets más por semana con café",
+      "kpi": "% de tickets con café por sucursal (meta 20%)"
+    },
+    {
+      "t": "Sumar un segundo producto en Villa Allende",
+      "p": "media",
+      "dato": "Ya mejoró: un solo producto en el 40,5% de los tickets, contra 44,1% de base. Sigue lejos de Carlos Paz (19,5%).",
+      "acc": "Seguir con la sugerencia activa en caja y el exhibidor de impulso (E3). Una capacitación corta con el equipo de Carlos Paz.",
+      "imp": "Bajar a 30% ≈ 18 tickets más por semana con un segundo producto ≈ $0,4 M/mes",
+      "kpi": "% de tickets con un solo producto en Villa Allende (meta 30%)"
+    },
+    {
+      "t": "Confirmar la carga de tickets en Carlos Paz",
+      "p": "baja",
+      "dato": "Desde el 07/09, Carlos Paz pasó de 2,8 a 4,8 unidades por ticket, con menos tickets.",
+      "acc": "Preguntar al equipo si cambió el sistema de caja o si se agrupan compras en un mismo ticket.",
+      "imp": "Sin impacto directo: define si la mejora del ticket es real",
+      "kpi": "Respuesta del equipo antes del 07/11"
+    }
+  ],
+  "hechos": [
+    "Ticket de mostrador: $16.171, 2,9% sobre la base previa al plan ($15.721). Meta: +5%.",
+    "Tickets de mostrador: 511 contra 627 de base (−18,5%). En las sucursales comparables, −14,9% contra 2025 (452 contra 531).",
+    "Café en el 16,4% de los tickets (base 12,6%, meta 15%). Un solo producto en el 30,1% (base 31,0%, meta 27%).",
+    "Precios de mostrador: +1,9% contra la base y +17,6% contra la misma semana de 2025. A precios constantes, el ticket creció 49% interanual.",
+    "Ningún mayorista inactivo volvió a comprar. Hubo 3 clientes identificados nuevos, entre ellos Ulpiano Restaurante."
+  ],
+  "hipotesis": [
+    "La suba del café en Carlos Paz puede ser efecto del combo desayuno (E4), si ya se implementó. Hay que confirmar qué se hizo en la sucursal.",
+    "La caída de Villa General Belgrano puede ser estacional (fin del movimiento de primavera), por competencia o por ventas que no se cargan. Hay que validarlo con el encargado.",
+    "La suba de unidades por ticket en Carlos Paz desde el 07/09 puede ser venta cruzada real o un cambio en cómo se cargan los tickets.",
+    "Si la temporada de Carlos Paz se comporta como otros años, los tickets deberían subir en diciembre y enero. La proyección lo muestra, pero con baja confiabilidad."
+  ]
+}

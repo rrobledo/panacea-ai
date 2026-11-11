@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "ventas-db": {
+      "type": "stdio",
+      "command": ".venv/bin/python",
+      "args": ["mcp_server/server.py"],
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}",
+        "SALES_TABLE": "public.panacea_sales_v2",
+        "MAX_FILAS": "500",
+        "TIMEOUT_SEG": "60"
+      }
+    }
+  }
+}

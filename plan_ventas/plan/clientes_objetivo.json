@@ -1,0 +1,76 @@
+{
+  "corte": "2026-10-15",
+  "criterio": "3 o más tickets, más de 90 días sin comprar y compras en los últimos 12 meses",
+  "clientes": [
+    {
+      "customer_id": 250,
+      "cliente": "Dulce Miga",
+      "tickets": 574,
+      "ultima": "2026-06-17",
+      "ventas_12m": 11220660.0
+    },
+    {
+      "customer_id": 325,
+      "cliente": "Paola Alexandra Campana",
+      "tickets": 68,
+      "ultima": "2026-07-16",
+      "ventas_12m": 2088156.0
+    },
+    {
+      "customer_id": 233,
+      "cliente": "Gisella Lopez",
+      "tickets": 102,
+      "ultima": "2026-07-15",
+      "ventas_12m": 1493790.0
+    },
+    {
+      "customer_id": 385,
+      "cliente": "Aylen Agustina Cavallo",
+      "tickets": 6,
+      "ultima": "2026-03-16",
+      "ventas_12m": 1116300.0
+    },
+    {
+      "customer_id": 104,
+      "cliente": "Alma Light",
+      "tickets": 118,
+      "ultima": "2026-07-16",
+      "ventas_12m": 953120.0
+    },
+    {
+      "customer_id": 390,
+      "cliente": "CAPE SRL",
+      "tickets": 12,
+      "ultima": "2026-06-06",
+      "ventas_12m": 687139.0
+    },
+    {
+      "customer_id": 372,
+      "cliente": "Pamela Sánchez\n",
+      "tickets": 6,
+      "ultima": "2026-04-17",
+      "ventas_12m": 441160.0
+    },
+    {
+      "customer_id": 364,
+      "cliente": "FRANCO MANUEL PONCE ",
+      "tickets": 11,
+      "ultima": "2026-04-29",
+      "ventas_12m": 429013.0
+    },
+    {
+      "customer_id": 173,
+      "cliente": "Canela Y Miel",
+      "tickets": 166,
+      "ultima": "2026-04-30",
+      "ventas_12m": 346481.0
+    },
+    {
+      "customer_id": 374,
+      "cliente": "MUNICIPALIDAD DE MENDIOLAZA",
+      "tickets": 11,
+      "ultima": "2026-03-14",
+      "ventas_12m": 214223.0
+    }
+  ]
+}

@@ -1,0 +1,547 @@
+{
+  "nombre": "Plan comercial Panacea",
+  "subtitulo": "Más tickets, más productos por ticket y menos desperdicio",
+  "origen": {
+    "reporte": "reportes/reporte_estrategia_2026-10-16.html",
+    "artifact": "https://claude.ai/artifact/KdZFGe3gNSGdj1XSWkCS2J",
+    "fecha": "2026-10-16"
+  },
+  "inicio": "2026-10-25",
+  "fin": "2027-01-23",
+  "definiciones": {
+    "clientes_mostrador": [
+      999,
+      0,
+      888,
+      777
+    ],
+    "corte_linea_base": "2026-10-15",
+    "dias_inactivo": 90,
+    "patron_villa_allende": "%allende%",
+    "regex_cafe": "caf[eé]",
+    "patron_cuadrados": "%cuadrado%",
+    "regex_productos_caida": "pan sandwich|cuadrado|cookie|\\mtorta",
+    "comparacion_anual": "Misma semana del año anterior: las mismas fechas menos 364 días, así coinciden los días de la semana.",
+    "ultimo_aumento": "2026-09-28",
+    "semanas_base": [
+      "2026-W40",
+      "2026-W41",
+      "2026-W43"
+    ],
+    "nota_base": "Base previa al plan: promedio de las semanas posteriores al aumento del 28/09 y anteriores al inicio del plan (25/10), de domingo a sábado: 27/09 al 03/10, 04/10 al 10/10 y 18/10 al 24/10. Se excluye la del 11/10 al 17/10, que fue atípica (Carlos Paz con 8 unidades por ticket en el mostrador).",
+    "historico_desde": "2026-06-29",
+    "nota_indice": "Índice de precios de mostrador (Laspeyres): canasta fija con las unidades vendidas en las semanas base y precio promedio de cada producto por semana. Base previa al plan = 100.",
+    "sucursales_proyeccion": [
+      "Carlos Paz",
+      "Villa Allende"
+    ],
+    "nota_semanas": "El plan se armó el 24/10/2026 y empezó a ejecutarse el domingo 25/10. Las semanas del plan van de domingo a sábado."
+  },
+  "riesgos": [
+    "Villa General Belgrano abrió el 25/09/2026 y no tiene datos de 2025: queda fuera de la comparación interanual. Sus tickets cayeron de 146 a 72 por semana entre el 11/10 y el 31/10.",
+    "Con inflación alta, la variación en pesos no es crecimiento real. Para juzgar el plan, mirar tickets y unidades."
+  ],
+  "estrategias": [
+    {
+      "id": "E1",
+      "titulo": "Recuperar a los mayoristas que dejaron de comprar",
+      "prioridad": "alta",
+      "responsable": "A definir",
+      "impacto_anual_m": 17.5,
+      "dato": "Dulce Miga compraba cada 2,1 días (≈ $1,46 M/mes) y no compra desde el 17/06. Otros 4 clientes llevan más de 90 días sin comprar.",
+      "acciones": [
+        {
+          "id": "E1.1",
+          "texto": "Armar la ficha de cada mayorista inactivo: historial, último pedido y productos habituales",
+          "semana": "2026-W44"
+        },
+        {
+          "id": "E1.2",
+          "texto": "Visitar a Dulce Miga con una oferta de reactivación: bonificación en el primer pedido y condiciones de pago",
+          "semana": "2026-W45"
+        },
+        {
+          "id": "E1.3",
+          "texto": "Contactar a los otros 4 mayoristas inactivos",
+          "semana": "2026-W45"
+        },
+        {
+          "id": "E1.4",
+          "texto": "Poner en marcha una alerta cuando un mayorista lleve 15 días sin comprar",
+          "semana": "2026-W47"
+        }
+      ],
+      "kpis": [
+        "mayoristas_reactivados",
+        "ventas_mayoristas"
+      ]
+    },
+    {
+      "id": "E2",
+      "titulo": "Frenar la pérdida de tickets en Villa Allende",
+      "prioridad": "alta",
+      "responsable": "A definir",
+      "impacto_anual_m": 15.5,
+      "dato": "3er trimestre: −293 tickets (−9,8%) y −15,7% de unidades contra 2025.",
+      "acciones": [
+        {
+          "id": "E2.1",
+          "texto": "Relevar los precios de la competencia cercana",
+          "semana": "2026-W45"
+        },
+        {
+          "id": "E2.2",
+          "texto": "Lanzar la tarjeta de sellos: la 10ª compra con descuento",
+          "semana": "2026-W46"
+        },
+        {
+          "id": "E2.3",
+          "texto": "Lanzar una promo en los días de menor venta",
+          "semana": "2026-W47"
+        }
+      ],
+      "kpis": [
+        "tickets_villa_allende"
+      ]
+    },
+    {
+      "id": "E3",
+      "titulo": "Sumar un segundo producto en caja",
+      "prioridad": "alta",
+      "responsable": "A definir",
+      "impacto_anual_m": 8.8,
+      "dato": "El 40% de los tickets de mostrador lleva un solo producto ($6.060). Con dos productos, el ticket sube a $10.424.",
+      "acciones": [
+        {
+          "id": "E3.1",
+          "texto": "Escribir la frase de sugerencia en caja y capacitar al personal",
+          "semana": "2026-W44"
+        },
+        {
+          "id": "E3.2",
+          "texto": "Instalar un exhibidor de impulso junto a la caja",
+          "semana": "2026-W45"
+        },
+        {
+          "id": "E3.3",
+          "texto": "Poner un precio especial al llevar el segundo producto",
+          "semana": "2026-W46"
+        }
+      ],
+      "kpis": [
+        "pct_tickets_un_producto",
+        "unidades_por_ticket_mostrador"
+      ]
+    },
+    {
+      "id": "E4",
+      "titulo": "Combo desayuno: café + 2 medialunas",
+      "prioridad": "media",
+      "responsable": "A definir",
+      "impacto_anual_m": 8.0,
+      "dato": "El café está en solo el 7,9% de los tickets. En Villa Allende, el combo café + 2 medialunas duplicó sus unidades.",
+      "acciones": [
+        {
+          "id": "E4.1",
+          "texto": "Definir el precio cerrado del combo, de 9 a 11 h, de lunes a viernes",
+          "semana": "2026-W44"
+        },
+        {
+          "id": "E4.2",
+          "texto": "Cargar el combo en la caja como producto propio, para poder medirlo",
+          "semana": "2026-W44"
+        },
+        {
+          "id": "E4.3",
+          "texto": "Colocar un cartel visible desde la vereda",
+          "semana": "2026-W45"
+        }
+      ],
+      "kpis": [
+        "pct_tickets_cafe",
+        "tickets_9a11"
+      ]
+    },
+    {
+      "id": "E5",
+      "titulo": "Packs de mostrador con los pares que más se repiten",
+      "prioridad": "media",
+      "responsable": "A definir",
+      "impacto_anual_m": 4.0,
+      "dato": "Los Cuadrados se compran surtidos, pero sus unidades cayeron 32%. Sorrentinos Calabaza + Ternera salen juntos en 293 tickets.",
+      "acciones": [
+        {
+          "id": "E5.1",
+          "texto": "Armar la caja surtida de 4 Cuadrados",
+          "semana": "2026-W46"
+        },
+        {
+          "id": "E5.2",
+          "texto": "Armar el pack de Sorrentinos 2 sabores y el de 2 pizzas",
+          "semana": "2026-W47"
+        },
+        {
+          "id": "E5.3",
+          "texto": "Cargar cada pack en la caja como producto propio",
+          "semana": "2026-W46"
+        }
+      ],
+      "kpis": [
+        "unidades_cuadrados",
+        "tickets_con_pack"
+      ]
+    },
+    {
+      "id": "E6",
+      "titulo": "Bajar la dependencia de pocos mayoristas",
+      "prioridad": "media",
+      "responsable": "A definir",
+      "impacto_anual_m": null,
+      "dato": "10 clientes hacen el 80% de la venta mayorista. Crimar SRL compró $36,3 M en 2026.",
+      "acciones": [
+        {
+          "id": "E6.1",
+          "texto": "Armar el plan de cuenta clave para Crimar",
+          "semana": "2026-W46"
+        },
+        {
+          "id": "E6.2",
+          "texto": "Listar prospectos de hotelería y gastronomía en Carlos Paz y Calamuchita",
+          "semana": "2026-W47"
+        },
+        {
+          "id": "E6.3",
+          "texto": "Concretar las primeras 10 visitas o contactos a prospectos",
+          "semana": "2026-W49"
+        }
+      ],
+      "kpis": [
+        "mayoristas_nuevos",
+        "peso_mayor_cliente"
+      ]
+    },
+    {
+      "id": "E7",
+      "titulo": "Personal y promos según la hora",
+      "prioridad": "baja",
+      "responsable": "A definir",
+      "impacto_anual_m": 1.0,
+      "dato": "Los picos son el sábado de 11 a 13 h y de lunes a viernes de 17 a 19 h. El lunes a la mañana y el domingo a la tarde no llegan a la mitad.",
+      "acciones": [
+        {
+          "id": "E7.1",
+          "texto": "Reforzar caja y reposición en los picos",
+          "semana": "2026-W45"
+        },
+        {
+          "id": "E7.2",
+          "texto": "Probar una promo de lunes a la mañana",
+          "semana": "2026-W47"
+        },
+        {
+          "id": "E7.3",
+          "texto": "Decidir si conviene abrir el domingo a la tarde",
+          "semana": "2026-W50"
+        }
+      ],
+      "kpis": [
+        "tickets_lunes_manana"
+      ]
+    },
+    {
+      "id": "E8",
+      "titulo": "Ajustar la producción a lo que se vende",
+      "prioridad": "alta",
+      "responsable": "A definir",
+      "impacto_anual_m": null,
+      "dato": "Sobran entre $3,0 M y $9,8 M por mes en valor de venta. Del Pan de Pancho sobra 67% a 70% y del Brownie, la mitad.",
+      "acciones": [
+        {
+          "id": "E8.1",
+          "texto": "Producir lo vendido en la misma semana del año anterior más 10% en Brownie, Pan de Pancho, Pan de Campo, Budín y Cuadrado de Naranja",
+          "semana": "2026-W44"
+        },
+        {
+          "id": "E8.2",
+          "texto": "Registrar la merma diaria por producto",
+          "semana": "2026-W44"
+        },
+        {
+          "id": "E8.3",
+          "texto": "Cargar la producción todos los días, sobre todo Chipa y Francés",
+          "semana": "2026-W44"
+        }
+      ],
+      "kpis": [
+        "pct_sobrante",
+        "dias_produccion_cargada"
+      ]
+    },
+    {
+      "id": "E9",
+      "titulo": "Revisar los productos en caída",
+      "prioridad": "baja",
+      "responsable": "A definir",
+      "impacto_anual_m": null,
+      "dato": "Unidades del 3er trimestre contra 2025: Pan Sandwich −33%, Cuadrados −32%, Cookies −49% y Tortas −60%.",
+      "acciones": [
+        {
+          "id": "E9.1",
+          "texto": "Revisar precio y exhibición de Pan Sandwich y Cuadrados",
+          "semana": "2026-W46"
+        },
+        {
+          "id": "E9.2",
+          "texto": "Depurar la lista de productos con venta marginal",
+          "semana": "2026-W49"
+        }
+      ],
+      "kpis": [
+        "unidades_en_caida"
+      ]
+    }
+  ],
+  "kpis": [
+    {
+      "id": "ventas",
+      "nombre": "Ventas de la semana",
+      "estrategia": "General",
+      "unidad": "ars",
+      "modo": "interanual",
+      "base": 45.7,
+      "meta": null,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Sube por precio. Se muestra como referencia, sin meta."
+    },
+    {
+      "id": "tickets",
+      "nombre": "Tickets de la semana",
+      "estrategia": "General",
+      "unidad": "num",
+      "modo": "interanual",
+      "base": -3.5,
+      "meta": 0,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Base: 3er trimestre contra 2025."
+    },
+    {
+      "id": "unidades",
+      "nombre": "Unidades de la semana",
+      "estrategia": "General",
+      "unidad": "num",
+      "modo": "interanual",
+      "base": 0,
+      "meta": 3,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Base: 3er trimestre contra 2025."
+    },
+    {
+      "id": "ticket_promedio",
+      "nombre": "Ticket promedio de mostrador",
+      "estrategia": "General",
+      "unidad": "ars",
+      "modo": "vs_base",
+      "base": 0,
+      "meta": 5,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Contra la base previa al plan (27/09 al 24/10, sin la semana atípica). Todas las sucursales."
+    },
+    {
+      "id": "ticket_constante",
+      "nombre": "Ticket de mostrador a precios constantes",
+      "estrategia": "General",
+      "unidad": "ars",
+      "modo": "interanual",
+      "base": null,
+      "meta": null,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Ticket dividido por el índice de precios de mostrador (base previa al plan = 100). Sucursales comparables. Mide el crecimiento real del ticket."
+    },
+    {
+      "id": "mayoristas_reactivados",
+      "nombre": "Mayoristas inactivos que volvieron a comprar",
+      "estrategia": "E1",
+      "unidad": "num",
+      "modo": "acumulado",
+      "base": 0,
+      "meta": 3,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Sobre la lista de plan/clientes_objetivo.json, desde el inicio del plan."
+    },
+    {
+      "id": "ventas_mayoristas",
+      "nombre": "Ventas a clientes identificados",
+      "estrategia": "E1",
+      "unidad": "ars",
+      "modo": "interanual",
+      "base": null,
+      "meta": null,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Todo lo que no es cliente de mostrador."
+    },
+    {
+      "id": "tickets_villa_allende",
+      "nombre": "Tickets de Villa Allende",
+      "estrategia": "E2",
+      "unidad": "num",
+      "modo": "interanual",
+      "base": -9.8,
+      "meta": 0,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Base: 3er trimestre contra 2025."
+    },
+    {
+      "id": "pct_tickets_un_producto",
+      "nombre": "Tickets de mostrador con un solo producto",
+      "estrategia": "E3",
+      "unidad": "pct",
+      "modo": "valor",
+      "base": 31.0,
+      "meta": 27,
+      "sentido": "bajar",
+      "fuente": "db",
+      "nota": "Base previa al plan, todas las sucursales. Meta: que el 15% de esos tickets sume un producto."
+    },
+    {
+      "id": "unidades_por_ticket_mostrador",
+      "nombre": "Unidades por ticket de mostrador",
+      "estrategia": "E3",
+      "unidad": "dec",
+      "modo": "vs_base",
+      "base": 0,
+      "meta": 5,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Contra la base previa al plan. No depende del precio: es el indicador principal de E3 y E4."
+    },
+    {
+      "id": "pct_tickets_cafe",
+      "nombre": "Tickets de mostrador con café",
+      "estrategia": "E4",
+      "unidad": "pct",
+      "modo": "valor",
+      "base": 12.6,
+      "meta": 15,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Base previa al plan, todas las sucursales."
+    },
+    {
+      "id": "tickets_9a11",
+      "nombre": "Tickets de 9 a 11 h, de lunes a viernes",
+      "estrategia": "E4",
+      "unidad": "num",
+      "modo": "interanual",
+      "base": null,
+      "meta": 10,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Solo mostrador."
+    },
+    {
+      "id": "unidades_cuadrados",
+      "nombre": "Unidades de Cuadrados",
+      "estrategia": "E5",
+      "unidad": "num",
+      "modo": "interanual",
+      "base": -32,
+      "meta": -16,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Meta: recuperar la mitad de la caída."
+    },
+    {
+      "id": "tickets_con_pack",
+      "nombre": "Tickets con algún pack",
+      "estrategia": "E5",
+      "unidad": "num",
+      "modo": "valor",
+      "base": 0,
+      "meta": null,
+      "sentido": "subir",
+      "fuente": "manual",
+      "nota": "Se mide cuando los packs estén cargados en la caja."
+    },
+    {
+      "id": "mayoristas_nuevos",
+      "nombre": "Mayoristas nuevos",
+      "estrategia": "E6",
+      "unidad": "num",
+      "modo": "acumulado",
+      "base": 0,
+      "meta": 3,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Clientes cuya primera compra es posterior al inicio del plan."
+    },
+    {
+      "id": "peso_mayor_cliente",
+      "nombre": "Peso del mayor cliente en la venta mayorista",
+      "estrategia": "E6",
+      "unidad": "pct",
+      "modo": "valor",
+      "base": null,
+      "meta": null,
+      "sentido": "bajar",
+      "fuente": "db",
+      "nota": "Últimas 4 semanas."
+    },
+    {
+      "id": "tickets_lunes_manana",
+      "nombre": "Tickets del lunes de 7 a 12 h",
+      "estrategia": "E7",
+      "unidad": "num",
+      "modo": "interanual",
+      "base": null,
+      "meta": 10,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Solo mostrador."
+    },
+    {
+      "id": "pct_sobrante",
+      "nombre": "Sobrante de los 5 productos foco",
+      "estrategia": "E8",
+      "unidad": "pct",
+      "modo": "valor",
+      "base": 50,
+      "meta": 15,
+      "sentido": "bajar",
+      "fuente": "manual",
+      "nota": "Producción contra venta. Se carga desde el registro de merma."
+    },
+    {
+      "id": "dias_produccion_cargada",
+      "nombre": "Días con producción cargada",
+      "estrategia": "E8",
+      "unidad": "num",
+      "modo": "valor",
+      "base": null,
+      "meta": 7,
+      "sentido": "subir",
+      "fuente": "manual",
+      "nota": "Sobre 7 días."
+    },
+    {
+      "id": "unidades_en_caida",
+      "nombre": "Unidades de productos en caída",
+      "estrategia": "E9",
+      "unidad": "num",
+      "modo": "interanual",
+      "base": -40,
+      "meta": -15,
+      "sentido": "subir",
+      "fuente": "db",
+      "nota": "Pan Sandwich, Cuadrados, Cookies y Tortas."
+    }
+  ],
+  "fecha_plan": "2026-10-24"
+}

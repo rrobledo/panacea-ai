@@ -1,0 +1,356 @@
+{
+  "semana": "2026-W44",
+  "desde": "2026-10-25",
+  "hasta": "2026-10-31",
+  "corte": "2026-10-31",
+  "anterior_desde": "2025-10-26",
+  "anterior_hasta": "2025-11-01",
+  "datos_hasta": "2026-11-02",
+  "completa": true,
+  "generado": "2026-11-02T17:15",
+  "kpis": {
+    "ventas": {
+      "valor": 8882150.0,
+      "anterior": 6555546.0,
+      "var": 35.5
+    },
+    "unidades": {
+      "valor": 2281.9166127272742,
+      "anterior": 2228.740092424241,
+      "var": 2.4
+    },
+    "tickets": {
+      "valor": 452,
+      "anterior": 531,
+      "var": -14.9
+    },
+    "ventas_mayoristas": {
+      "valor": 1476259.0,
+      "anterior": 1688871.0,
+      "var": -12.6
+    },
+    "tickets_villa_allende": {
+      "valor": 173,
+      "anterior": 183,
+      "var": -5.5
+    },
+    "tickets_9a11": {
+      "valor": 49,
+      "anterior": 50,
+      "var": -2.0
+    },
+    "tickets_lunes_manana": {
+      "valor": 11,
+      "anterior": 13,
+      "var": -15.4
+    },
+    "unidades_cuadrados": {
+      "valor": 110.0,
+      "anterior": 85.0,
+      "var": 29.4
+    },
+    "unidades_en_caida": {
+      "valor": 120.0,
+      "anterior": 95.0,
+      "var": 26.3
+    },
+    "ticket_promedio": {
+      "valor": 16171.32,
+      "base": 15721.35,
+      "var_base": 2.9
+    },
+    "unidades_por_ticket_mostrador": {
+      "valor": 3.87,
+      "base": 3.91,
+      "var_base": -1.1
+    },
+    "pct_tickets_un_producto": {
+      "valor": 30.14,
+      "base": 31.03,
+      "var_base": -2.9
+    },
+    "pct_tickets_cafe": {
+      "valor": 16.44,
+      "base": 12.59,
+      "var_base": 30.6
+    },
+    "ticket_constante": {
+      "valor": 16410,
+      "anterior": 10983,
+      "var": 49.4,
+      "indice": 102.8,
+      "indice_anterior": 87.4
+    },
+    "mayoristas_reactivados": {
+      "valor": 0,
+      "de": 10
+    },
+    "mayoristas_nuevos": {
+      "valor": 3
+    },
+    "peso_mayor_cliente": {
+      "valor": 44.9
+    }
+  },
+  "diario": [
+    {
+      "fecha": "2026-10-25",
+      "ventas": 468588.0,
+      "tickets": 24,
+      "unidades": 131.23166666666665,
+      "ventas_ant": 381728.0,
+      "tickets_ant": 42,
+      "unidades_ant": 126.40833333333332
+    },
+    {
+      "fecha": "2026-10-26",
+      "ventas": 763539.0,
+      "tickets": 54,
+      "unidades": 196.14621212121207,
+      "ventas_ant": 853180.0,
+      "tickets_ant": 81,
+      "unidades_ant": 302.4366666666668
+    },
+    {
+      "fecha": "2026-10-27",
+      "ventas": 1112784.0,
+      "tickets": 65,
+      "unidades": 265.55303030303025,
+      "ventas_ant": 891922.0,
+      "tickets_ant": 75,
+      "unidades_ant": 293.3326666666666
+    },
+    {
+      "fecha": "2026-10-28",
+      "ventas": 970295.0,
+      "tickets": 70,
+      "unidades": 226.62090909090912,
+      "ventas_ant": 964220.0,
+      "tickets_ant": 99,
+      "unidades_ant": 340.29042424242425
+    },
+    {
+      "fecha": "2026-10-29",
+      "ventas": 2207826.0,
+      "tickets": 83,
+      "unidades": 526.2328248484847,
+      "ventas_ant": 553680.0,
+      "tickets_ant": 59,
+      "unidades_ant": 145.19133333333332
+    },
+    {
+      "fecha": "2026-10-30",
+      "ventas": 1643659.0,
+      "tickets": 75,
+      "unidades": 554.7087878787879,
+      "ventas_ant": 1585386.0,
+      "tickets_ant": 76,
+      "unidades_ant": 636.78792
+    },
+    {
+      "fecha": "2026-10-31",
+      "ventas": 1715459.0,
+      "tickets": 81,
+      "unidades": 381.4231818181816,
+      "ventas_ant": 1325430.0,
+      "tickets_ant": 99,
+      "unidades_ant": 384.2927481818181
+    }
+  ],
+  "detalle": {
+    "reactivados": [],
+    "nuevos": [
+      {
+        "cliente": " Ulpiano Restaurante",
+        "primera": "2026-10-30",
+        "ventas": 167405.0
+      },
+      {
+        "cliente": null,
+        "primera": "2026-10-30",
+        "ventas": 46350.0
+      },
+      {
+        "cliente": "SILVINA DEL PRADO",
+        "primera": "2026-10-30",
+        "ventas": 15300.0
+      }
+    ],
+    "mayor_cliente": "Crimar SRL",
+    "sucursales_comparables": [
+      "Carlos Paz",
+      "Dietetica",
+      "Villa Allende"
+    ],
+    "sucursales": [
+      {
+        "lugar": "Carlos Paz",
+        "comparable": true,
+        "ventas": 4832244.0,
+        "ventas_ant": 3218254.0,
+        "ventas_base": 5484712.0,
+        "tickets": 266,
+        "tickets_ant": 324,
+        "tickets_base": 297,
+        "unidades": 1262.02,
+        "unidades_ant": 913.6455000000003,
+        "unidades_base": 1440.41,
+        "tickets_most": 266,
+        "tickets_most_ant": 324,
+        "tickets_most_base": 297,
+        "tp": 18166.330827067668,
+        "tp_ant": 9932.882716049382,
+        "tp_base": 18458.98,
+        "upt": 4.744436090225564,
+        "upt_ant": 2.8198935185185197,
+        "upt_base": 4.85,
+        "pct_uno": 19.548872180451127,
+        "pct_uno_ant": 47.22222222222222,
+        "pct_uno_base": 19.44,
+        "pct_cafe": 13.533834586466165,
+        "pct_cafe_ant": 3.3950617283950617,
+        "pct_cafe_base": 4.83
+      },
+      {
+        "lugar": "Cordoba",
+        "comparable": false,
+        "ventas": 0,
+        "ventas_ant": 3294523.0,
+        "ventas_base": null,
+        "tickets": 0,
+        "tickets_ant": 159,
+        "tickets_base": null,
+        "unidades": 0,
+        "unidades_ant": 901.4266666666668,
+        "unidades_base": null,
+        "tickets_most": null,
+        "tickets_most_ant": 159,
+        "tickets_most_base": null,
+        "tp": null,
+        "tp_ant": 20720.270440251574,
+        "tp_base": null,
+        "upt": null,
+        "upt_ant": 5.669350104821804,
+        "upt_base": null,
+        "pct_uno": null,
+        "pct_uno_ant": 1.2578616352201257,
+        "pct_uno_base": null,
+        "pct_cafe": null,
+        "pct_cafe_ant": 7.547169811320755,
+        "pct_cafe_base": null
+      },
+      {
+        "lugar": "Dietetica",
+        "comparable": true,
+        "ventas": 1476259.0,
+        "ventas_ant": 1688871.0,
+        "ventas_base": 1895453.0,
+        "tickets": 13,
+        "tickets_ant": 24,
+        "tickets_base": 15,
+        "unidades": 505.5626733333333,
+        "unidades_ant": 840.1446833333334,
+        "unidades_base": 746.49,
+        "tickets_most": 0,
+        "tickets_most_ant": 0,
+        "tickets_most_base": 0,
+        "tp": null,
+        "tp_ant": null,
+        "tp_base": null,
+        "upt": null,
+        "upt_ant": null,
+        "upt_base": null,
+        "pct_uno": null,
+        "pct_uno_ant": null,
+        "pct_uno_base": null,
+        "pct_cafe": null,
+        "pct_cafe_ant": null,
+        "pct_cafe_base": null
+      },
+      {
+        "lugar": "Villa Allende",
+        "comparable": true,
+        "ventas": 2573647.0,
+        "ventas_ant": 1648421.0,
+        "ventas_base": 2742263.0,
+        "tickets": 173,
+        "tickets_ant": 183,
+        "tickets_base": 204,
+        "unidades": 514.3339393939394,
+        "unidades_ant": 474.94990909090905,
+        "unidades_base": 572.82,
+        "tickets_most": 173,
+        "tickets_most_ant": 183,
+        "tickets_most_base": 204,
+        "tp": 14876.57225433526,
+        "tp_ant": 9007.765027322404,
+        "tp_base": 13435.17,
+        "upt": 2.9730285514100547,
+        "upt_ant": 2.5953546944858417,
+        "upt_base": 2.82,
+        "pct_uno": 40.46242774566474,
+        "pct_uno_ant": 48.08743169398907,
+        "pct_uno_base": 44.06,
+        "pct_cafe": 15.606936416184972,
+        "pct_cafe_ant": 4.371584699453552,
+        "pct_cafe_base": 13.71
+      },
+      {
+        "lugar": "Villa General Belgrano",
+        "comparable": false,
+        "ventas": 857653.0,
+        "ventas_ant": null,
+        "ventas_base": 1628163.0,
+        "tickets": 72,
+        "tickets_ant": null,
+        "tickets_base": 126,
+        "unidades": 200.0,
+        "unidades_ant": null,
+        "unidades_base": 439.33,
+        "tickets_most": 72,
+        "tickets_most_ant": null,
+        "tickets_most_base": 126,
+        "tp": 11911.847222222223,
+        "tp_ant": null,
+        "tp_base": 12975.27,
+        "upt": 2.7777777777777777,
+        "upt_ant": null,
+        "upt_base": 3.49,
+        "pct_uno": 44.44444444444444,
+        "pct_uno_ant": null,
+        "pct_uno_base": 37.25,
+        "pct_cafe": 29.166666666666668,
+        "pct_cafe_ant": null,
+        "pct_cafe_base": 29.27
+      },
+      {
+        "lugar": "Todas",
+        "comparable": false,
+        "ventas": 9739803.0,
+        "ventas_ant": 9850069.0,
+        "ventas_base": 11750591.0,
+        "tickets": 524,
+        "tickets_ant": 690,
+        "tickets_base": 642,
+        "unidades": 2481.916612727271,
+        "unidades_ant": 3130.166759090909,
+        "unidades_base": 3199.05,
+        "tickets_most": 511,
+        "tickets_most_ant": 666,
+        "tickets_most_base": 627,
+        "tp": 16171.318982387476,
+        "tp_ant": 12254.05105105105,
+        "tp_base": 15721.35,
+        "upt": 3.8676202336476293,
+        "upt_ant": 3.4384715852215857,
+        "upt_base": 3.91,
+        "pct_uno": 30.136986301369863,
+        "pct_uno_ant": 36.486486486486484,
+        "pct_uno_base": 31.03,
+        "pct_cafe": 16.438356164383563,
+        "pct_cafe_ant": 4.654654654654655,
+        "pct_cafe_base": 12.59
+      }
+    ]
+  }
+}

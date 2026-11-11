@@ -1,0 +1,138 @@
+{
+  "semana": "2026-W44",
+  "acciones": {
+    "E1.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E1.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E1.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E1.4": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E2.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E2.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E2.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E3.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E3.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E3.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E4.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E4.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E4.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E5.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E5.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E5.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E6.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E6.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E6.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E7.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E7.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E7.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E8.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E8.2": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E8.3": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E9.1": {
+      "estado": "pendiente",
+      "nota": ""
+    },
+    "E9.2": {
+      "estado": "pendiente",
+      "nota": ""
+    }
+  },
+  "kpis_manuales": {
+    "tickets_con_pack": null,
+    "pct_sobrante": null,
+    "dias_produccion_cargada": null
+  },
+  "hechos": [
+    "Primera semana de ejecución del plan (domingo 25/10 al sábado 31/10). El plan se armó el 24/10. Semana completa.",
+    "En las sucursales comparables (Carlos Paz, Dietética y Villa Allende), los tickets cayeron 14,9% contra 2025 (452 contra 531). Las unidades subieron 2,4% y las ventas en pesos 35,5%.",
+    "Contra la base previa al plan, el ticket de mostrador es $16.171 (+2,9%; meta +5%). Las unidades por ticket quedaron en 3,87 contra 3,91 y los precios subieron 1,9%.",
+    "Los tickets de mostrador están 18,5% por debajo de la base (511 contra 627): Carlos Paz −10%, Villa Allende −15% y Villa General Belgrano −43%. La baja empezó la semana anterior al plan.",
+    "El café ya está en meta: 16,4% de los tickets (base 12,6%). En Carlos Paz pasó de 4,8% a 13,5%.",
+    "Villa Allende mejoró dentro del ticket: +10,7% de ticket, +5,4% de unidades y un solo producto en 40,5% (base 44,1%).",
+    "Ninguno de los 10 mayoristas inactivos volvió a comprar. Hubo 3 clientes identificados nuevos. Crimar SRL explica el 44,9% de la venta a clientes identificados de las últimas 4 semanas."
+  ],
+  "decisiones": [
+    "El plan empezó el domingo 25/10. Las semanas del plan van de domingo a sábado; las acciones se corrieron una semana para respetar el calendario original.",
+    "La base es el promedio de las semanas previas al plan y posteriores al aumento del 28/09: 27/09 al 03/10, 04/10 al 10/10 y 18/10 al 24/10. Se excluye la del 11 al 17/10, atípica.",
+    "Metas sin cambios: ticket y unidades por ticket +5% sobre la base; un solo producto de 31,0% a 27%; café de 12,6% a 15%."
+  ],
+  "proxima_semana": [
+    "Cargar el estado real de las acciones de la primera semana (E1.1, E3.1, E4.1, E4.2 y E8).",
+    "Confirmar qué se hizo en Carlos Paz para que suba el café, y si cambió la forma de cargar los tickets.",
+    "Revisar qué pasa en Villa General Belgrano: de 146 a 72 tickets en dos semanas.",
+    "Revisar la lista de mayoristas objetivo: tiene 10 clientes, varios con compras chicas."
+  ]
+}
