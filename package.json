@@ -2,7 +2,9 @@
   "name": "panacea-agente-web",
   "version": "0.1.0",
   "private": true,
-  "engines": { "node": ">=20.9" },
+  "engines": {
+    "node": ">=20.9"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -14,11 +16,11 @@
     "jose": "6.2.17",
     "lucide-react": "1.72.0",
     "next": "16.4.6",
-    "next-auth": "5.0.0-beta.32",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-markdown": "10.1.0",
     "remark-gfm": "4.0.1",
+    "server-only": "0.0.1",
     "yaml": "2.9.1"
   },
   "devDependencies": {

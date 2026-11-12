@@ -72,9 +72,9 @@ def test_sin_sesion(entorno):
     assert c.get("/api/profiles", headers=vencido).status_code == 401
 
 
-def test_cookie_de_auth_js(entorno):
+def test_cookie_de_sesion(entorno):
     c, _, _ = entorno
-    c.cookies.set("__Secure-authjs.session-token", token("ana@example.com"))
+    c.cookies.set("panacea.sesion", token("ana@example.com"))
     assert c.get("/api/profiles").status_code == 200
 
 

@@ -8,6 +8,8 @@ menciona "reporte" pide aclaraciones y, al aprobarlas, genera un reporte de ejem
   AUTH_SECRET=... .venv/bin/python scripts/demo_backend.py      # http://127.0.0.1:8000
   AUTH_SECRET=... npm run dev                                    # http://localhost:3000
 
+El login real pasa por panacea-produccion-backend; acá se reemplaza con la cookie `panacea.sesion`.
+
 Usuarios: los de config/usuarios.yaml más DEMO_EMAIL (por defecto demo@example.com, admin).
 Para entrar sin Google, generá la cookie con: .venv/bin/python scripts/demo_backend.py --cookie
 """
@@ -156,7 +158,7 @@ class ServiciosDemo(Servicios):
 
 def cookie() -> str:
     import jwt
-    return jwt.encode({"email": DEMO_EMAIL, "exp": int(time.time()) + 12 * 3600}, os.environ["AUTH_SECRET"],
+    return jwt.encode({"sub": "0", "email": DEMO_EMAIL, "role": "admin", "exp": int(time.time()) + 12 * 3600}, os.environ["AUTH_SECRET"],
                       algorithm="HS256")
 
 

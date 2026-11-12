@@ -60,8 +60,9 @@ claude        # aprobá el servidor "ventas-db" la primera vez; /mcp para verifi
 | Variable | Qué es |
 |---|---|
 | `ANTHROPIC_API_KEY` | Clave de la API de Anthropic |
-| `AUTH_SECRET` | Secreto de Auth.js (≥ 32 caracteres); el backend valida con él la sesión (JWT HS256) |
-| `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | Cliente OAuth de Google para el login |
+| `AUTH_SECRET` | El mismo valor que `SECRET_KEY` de panacea-produccion-backend: valida el JWT HS256 de la sesión |
+| `AUTH_BACKEND_URL` | Backend que hace el login con Google (por defecto `https://panacea-produccion-backend.vercel.app`) |
+| `APP_URL` | Opcional: URL pública de esta app, si la que ve Next no es la real |
 | `DB_URL_APP` | Base del esquema `app`, con el rol `agente_app` |
 | `DB_URL_<PERFIL>` | Una por perfil (ej. `DB_URL_VENTAS`), con el rol de solo lectura de ese perfil |
 
@@ -90,7 +91,13 @@ del archivo).
 ### Interfaz (Next.js)
 Next.js 16 (App Router) + Tailwind en la raíz: `app/` (rutas), `components/` (chat, aclaraciones,
 tarjetas), `lib/` (cliente de la API, SSE, sesión). Rutas: `/login`, `/` (última conversación),
-`/chat` (nueva) y `/chat/<id>`. El login es con Google y solo entran los emails de `config/usuarios.yaml`.
+`/chat` (nueva) y `/chat/<id>`.
+
+El login es el mismo que el de panacea-compras: `/auth/google` redirige a panacea-produccion-backend,
+que hace el OAuth con Google y vuelve a `/auth/callback?token=<JWT>`. Next valida el token con
+`AUTH_SECRET`, controla que el email esté en `config/usuarios.yaml` y lo guarda en la cookie httpOnly
+`panacea.sesion`, que FastAPI vuelve a validar en cada pedido. El usuario tiene que existir también en
+ese backend.
 
 ### Correr local
 Necesita Node ≥ 20.9.
@@ -103,19 +110,18 @@ npm run dev                                   # http://localhost:3000, /api/* va
 # Sin base ni costo de API (Claude simulado con guion, almacén en memoria):
 AUTH_SECRET=... .venv/bin/python scripts/demo_backend.py &
 AUTH_SECRET=... npm run dev
-# entrar sin Google: cookie authjs.session-token = salida de `scripts/demo_backend.py --cookie`
+# entrar sin Google: cookie panacea.sesion = salida de `scripts/demo_backend.py --cookie`
 ```
-Pruebas de la interfaz: `npm test` (SSE, eventos del chat, sesión compatible con el backend) y
+Pruebas de la interfaz: `npm test` (SSE, eventos del chat, token de sesión compatible con el backend) y
 `npm run typecheck`.
 
 ### Despliegue en Vercel
 Un solo proyecto con Next.js en la raíz y `api/index.py` como función Python (`vercel.json`):
 1. Framework: Next.js (lo fija `vercel.json`). Node 22 o más.
-2. Variables de entorno: las de la tabla de arriba más `AUTH_GOOGLE_ID` y `AUTH_GOOGLE_SECRET`
-   (ver `.env.example`).
-3. Google Cloud Console → Credenciales → ID de cliente OAuth ("Aplicación web"), con el URI de
-   redireccionamiento `https://<tu-dominio>/api/auth/callback/google`. Los deploys de preview tienen otra
-   URL: agregá también su URI, o probá el login en el dominio de producción.
+2. Variables de entorno: las de la tabla de arriba (ver `.env.example`).
+3. En panacea-produccion-backend, agregar `https://<tu-dominio>/auth/callback` a `FRONTEND_URLS`
+   (separado por comas). No hace falta tocar Google Cloud: el callback de Google es el de ese backend.
+   Los deploys de preview tienen otra URL: agregá también la suya, o probá el login en producción.
 4. `config/usuarios.yaml` con los emails que pueden entrar (commit y deploy).
 
 ## 4. Pruebas y evaluación

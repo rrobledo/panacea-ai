@@ -1,4 +1,4 @@
-// Cliente del backend FastAPI. Corre en el navegador: la cookie de sesión de Auth.js viaja sola,
+// Cliente del backend FastAPI. Corre en el navegador: la cookie de sesión (panacea.sesion) viaja sola,
 // porque /api/* es el mismo origen.
 
 export type Perfil = { id: string; nombre: string; descripcion: string };
@@ -89,7 +89,7 @@ async function pedir(ruta: string, init?: RequestInit): Promise<Response> {
   });
   if (r.status === 401) {
     // La sesión venció: volver a entrar y regresar a esta página.
-    window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`;
+    window.location.href = `/login?destino=${encodeURIComponent(window.location.pathname)}`;
     throw new ErrorApi(401, "Tu sesión venció");
   }
   if (!r.ok) throw new ErrorApi(r.status, await detalle(r));

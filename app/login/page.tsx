@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ShieldX } from "lucide-react";
 
-import { entrarConGoogle } from "@/app/acciones";
-import { auth } from "@/auth";
+import { destinoSeguro } from "@/lib/sesion";
+import { sesionActual } from "@/lib/sesionServidor";
 
 export const metadata: Metadata = { title: "Entrar" };
 
@@ -18,9 +18,15 @@ function LogoGoogle() {
   );
 }
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; callbackUrl?: string }> }) {
-  const { error, callbackUrl } = await searchParams;
-  if (!error && (await auth())) redirect("/");
+const ERRORES: Record<string, string> = {
+  Google: "Google no completó el inicio de sesión. Probá de nuevo.",
+  Vencido: "El inicio de sesión tardó demasiado o empezó en otra pestaña. Probá de nuevo.",
+  Token: "No se pudo validar la sesión. Probá de nuevo; si sigue fallando, avisale a un administrador.",
+};
+
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; destino?: string }> }) {
+  const { error, destino } = await searchParams;
+  if (!error && (await sesionActual())) redirect("/");
   const denegado = error === "AccessDenied";
 
   return (
@@ -44,12 +50,13 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </div>
         ) : error ? (
           <p role="alert" className="rounded-lg bg-bad-soft text-bad text-sm px-4 py-3">
-            No se pudo iniciar sesión. Probá de nuevo.
+            {ERRORES[error] ?? "No se pudo iniciar sesión. Probá de nuevo."}
           </p>
         ) : null}
 
-        <form action={entrarConGoogle}>
-          <input type="hidden" name="destino" value={callbackUrl?.startsWith("/") ? callbackUrl : "/"} />
+        {/* Ruta de servidor: redirige al login de panacea-produccion-backend (navegación completa). */}
+        <form action="/auth/google" method="get">
+          <input type="hidden" name="destino" value={destinoSeguro(destino)} />
           <button
             type="submit"
             className="w-full flex items-center justify-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 font-medium hover:border-accent transition-colors"

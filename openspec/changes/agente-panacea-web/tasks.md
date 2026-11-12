@@ -25,7 +25,7 @@
 ## 3. Fase 1 · Backend y loop del agente
 
 - [x] 3.1 Crear `api/index.py` (FastAPI) con `/api/profiles`, `/api/chat`, `/api/conversaciones/{id}`
-- [x] 3.2 Validación de sesión (JWT de Auth.js) y resolución de perfiles del usuario; 401/403 según corresponda
+- [x] 3.2 Validación de sesión (JWT de panacea-produccion-backend) y resolución de perfiles del usuario; 401/403 según corresponda
 - [x] 3.3 Implementar `agent/loop.py`: Messages API en streaming, herramientas del perfil, ejecución de `tool_use`, `is_error` en fallos, corte en `end_turn` (confirmar parámetros con la skill `claude-api`)
 - [x] 3.4 Armado del system prompt (prompt del perfil + diccionarios) con `cache_control` en system y herramientas
 - [x] 3.5 Persistencia solo-agregado de mensajes (incluidos bloques de razonamiento) y de cada paso de herramienta
@@ -37,11 +37,11 @@
 ## 4. Fase 1 · Frontend, auth y despliegue
 
 - [x] 4.1 Inicializar Next.js (App Router, TypeScript, Tailwind) en la raíz y `package.json`
-- [x] 4.2 Configurar Auth.js con Google y restringir a emails de `usuarios.yaml` (email verificado); pantalla de acceso denegado; sesión firmada HS256 compatible con el backend
+- [x] 4.2 Login con Google vía panacea-produccion-backend (mismo enfoque que panacea-compras), restringido a emails de `usuarios.yaml`; pantalla de acceso denegado; cookie httpOnly con el JWT HS256 que valida el backend
 - [x] 4.3 Layout con barra superior, selector de perfil y tema claro/oscuro
 - [x] 4.4 Componente `ChatStream`: consumo de SSE, texto parcial y pasos con duración
 - [x] 4.5 Rutas `/chat/[id]` (historial y continuar) y `/` (último chat o nuevo)
-- [x] 4.6 `vercel.json` (`framework: nextjs`, `maxDuration` 300 s y archivos excluidos de la función Python) y rewrite de `/api/*` a FastAPI (excepto `/api/auth/*`) en `next.config.ts`
+- [x] 4.6 `vercel.json` (`framework: nextjs`, `maxDuration` 300 s y archivos excluidos de la función Python) y rewrite de `/api/*` a FastAPI en `next.config.ts`
 - [ ] 4.7 Vincular la base Postgres de Vercel al proyecto y configurar variables de entorno: `DB_URL_VENTAS`, `DB_URL_PRODUCCION` y `DB_URL_APP` con el rol de cada uno y el host con pooler; `POSTGRES_URL_NON_POOLING` solo para migraciones
 - [ ] 4.8 Deploy en preview y prueba de punta a punta con el perfil ventas
 

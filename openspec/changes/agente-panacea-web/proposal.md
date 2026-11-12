@@ -12,7 +12,7 @@ Fuente: propuesta técnica "Agente Panacea Web" v1 (11/11/2026), https://claude.
 - Perfiles definidos en `config/perfiles/*.yaml` (prompt, tablas, herramientas, credencial de base, reglas y límites) y asignación de usuarios en `config/usuarios.yaml`. Un rol de Postgres de solo lectura por perfil.
 - Nueva herramienta `solicitar_aclaraciones`: el agente debe presentar preguntas y un brief, el turno se pausa y el usuario aprueba o ajusta. `generar_artifact` rechaza cualquier llamada sin un `brief_id` aprobado.
 - Nuevas herramientas `generar_artifact` y `editar_artifact`: reportes HTML autocontenidos (Chart.js 4.4.1, formato es-AR, modo claro/oscuro) a partir de una plantilla Panacea, guardados con versiones y con las consultas SQL que los alimentaron.
-- Frontend Next.js (App Router, Tailwind): login con Auth.js, chat con pasos visibles, tarjeta de aclaraciones, visor de reportes en iframe aislado y galería `/artifacts` con filtros.
+- Frontend Next.js (App Router, Tailwind): login con Google a través de panacea-produccion-backend (como panacea-compras), chat con pasos visibles, tarjeta de aclaraciones, visor de reportes en iframe aislado y galería `/artifacts` con filtros.
 - Esquema `app` en Postgres para conversaciones, mensajes, briefs, artifacts, versiones y auditoría de SQL y tokens, con presupuesto por turno y tope mensual por usuario.
 - Despliegue en un único proyecto de Vercel (Next.js + función Python), con `vercel.json` reescribiendo `/api/*` hacia FastAPI.
 
@@ -33,8 +33,8 @@ Fuente: propuesta técnica "Agente Panacea Web" v1 (11/11/2026), https://claude.
 ## Impact
 
 - **Código**: `mcp_server/server.py` se reduce a un adaptador sobre `agent/tools`. Nuevos directorios `app/`, `components/`, `api/`, `agent/`, `config/`, `prompts/` en la raíz del repo. `CLAUDE.md` se reutiliza como base de `prompts/ventas.md`.
-- **Dependencias**: Python `fastapi`, `anthropic`, `sqlglot`, `pyyaml`, `pydantic`; Node `next`, `react`, `tailwindcss`, `next-auth` (Auth.js).
+- **Dependencias**: Python `fastapi`, `anthropic`, `sqlglot`, `pyyaml`, `pydantic`; Node `next`, `react`, `tailwindcss`, `jose`.
 - **Base de datos**: roles `agente_ventas_ro` y `agente_produccion_ro` con `GRANT SELECT` acotado y `statement_timeout`; rol de escritura de la app sobre el nuevo esquema `app` en la misma base Postgres de Vercel.
-- **Infraestructura**: proyecto de Vercel Pro con Fluid compute; variables de entorno `ANTHROPIC_API_KEY`, `DB_URL_VENTAS`, `DB_URL_PRODUCCION`, `DB_URL_APP`, secretos de Auth.js. La base Postgres ya está alojada en Vercel, así que la conectividad está resuelta; se usa la cadena de conexión con pooler.
+- **Infraestructura**: proyecto de Vercel Pro con Fluid compute; variables de entorno `ANTHROPIC_API_KEY`, `DB_URL_VENTAS`, `DB_URL_PRODUCCION`, `DB_URL_APP`, `AUTH_SECRET` (el `SECRET_KEY` de panacea-produccion-backend). La base Postgres ya está alojada en Vercel, así que la conectividad está resuelta; se usa la cadena de conexión con pooler.
 - **Costos**: estimado US$100 a 250 por mes de API para 5 usuarios, 400 preguntas y 40 reportes, más Vercel Pro.
 - **Bloqueante resuelto**: la base es Postgres en Vercel, en la misma plataforma que la app.

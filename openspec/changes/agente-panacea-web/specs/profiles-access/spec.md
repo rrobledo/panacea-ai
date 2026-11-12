@@ -12,7 +12,7 @@ El sistema SHALL cargar los perfiles desde `config/perfiles/*.yaml` y validarlos
 - **THEN** el perfil aparece disponible para los usuarios asignados sin modificar código
 
 ### Requirement: Autenticación y asignación de perfiles
-El sistema SHALL exigir sesión iniciada (Auth.js) para toda ruta salvo la de login y SHALL asignar a cada usuario los perfiles listados para su email en `config/usuarios.yaml`. Un email que no figure MUST NOT acceder a la aplicación.
+El sistema SHALL exigir sesión iniciada (JWT de panacea-produccion-backend) para toda ruta salvo la de login y SHALL asignar a cada usuario los perfiles listados para su email en `config/usuarios.yaml`. Un email que no figure MUST NOT acceder a la aplicación.
 
 #### Scenario: Usuario no registrado
 - **WHEN** inicia sesión un email que no está en `usuarios.yaml`

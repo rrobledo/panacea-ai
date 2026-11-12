@@ -1,14 +1,11 @@
 "use server";
 
-import { signIn, signOut } from "@/auth";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export async function entrarConGoogle(formData: FormData) {
-  const destino = formData.get("destino");
-  // select_account: Google deja elegir la cuenta (útil después de un acceso denegado).
-  await signIn("google", { redirectTo: typeof destino === "string" && destino.startsWith("/") ? destino : "/" },
-               { prompt: "select_account" });
-}
+import { COOKIE_SESION } from "@/lib/sesion";
 
 export async function salir() {
-  await signOut({ redirectTo: "/login" });
+  (await cookies()).delete(COOKIE_SESION);
+  redirect("/login");
 }

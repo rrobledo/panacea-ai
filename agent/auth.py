@@ -1,16 +1,18 @@
 """
-Validación de la sesión de Auth.js en el backend.
+Validación de la sesión en el backend.
 
-Auth.js se configura (task 4.2) con jwt.encode/decode propios que firman la sesión como JWT HS256
-con AUTH_SECRET, en lugar del JWE por defecto. El backend la valida con el mismo secreto. El token
-llega en la cookie de sesión (mismo origen) o en `Authorization: Bearer`.
+El login es el mismo que usa panacea-compras: lo hace panacea-produccion-backend (`/auth/google`), que
+devuelve un JWT HS256 firmado con su SECRET_KEY (claims sub, email, role, exp). Next lo recibe en
+/auth/callback, controla el email y lo guarda en la cookie httpOnly `panacea.sesion`. Este backend lo
+valida con AUTH_SECRET, que tiene que ser el mismo valor que SECRET_KEY de ese backend. El token llega
+en la cookie (mismo origen) o en `Authorization: Bearer`.
 """
 
 import os
 
 import jwt
 
-COOKIES_SESION = ("__Secure-authjs.session-token", "authjs.session-token")
+COOKIE_SESION = "panacea.sesion"
 
 
 class SesionInvalida(Exception):
@@ -19,8 +21,8 @@ class SesionInvalida(Exception):
 
 def secreto() -> str:
     s = os.environ.get("AUTH_SECRET", "")
-    if len(s) < 32:
-        raise RuntimeError("AUTH_SECRET falta o tiene menos de 32 caracteres")
+    if not s:
+        raise RuntimeError("Falta AUTH_SECRET (el SECRET_KEY de panacea-produccion-backend)")
     return s
 
 
@@ -28,10 +30,7 @@ def token_de(headers, cookies) -> str | None:
     auth = headers.get("authorization", "")
     if auth.lower().startswith("bearer "):
         return auth[7:].strip() or None
-    for nombre in COOKIES_SESION:
-        if cookies.get(nombre):
-            return cookies[nombre]
-    return None
+    return cookies.get(COOKIE_SESION) or None
 
 
 def email_de_token(token: str | None, clave: str | None = None) -> str:
