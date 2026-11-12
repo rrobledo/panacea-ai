@@ -36,12 +36,12 @@
 
 ## 4. Fase 1 · Frontend, auth y despliegue
 
-- [ ] 4.1 Inicializar Next.js (App Router, TypeScript, Tailwind) en la raíz y `package.json`
-- [ ] 4.2 Configurar Auth.js (Google o email) y restringir a emails de `usuarios.yaml`; pantalla de acceso denegado
-- [ ] 4.3 Layout con barra superior, selector de perfil y tema claro/oscuro
-- [ ] 4.4 Componente `ChatStream`: consumo de SSE, texto parcial y pasos con duración
-- [ ] 4.5 Rutas `/chat/[id]` (historial y continuar) y `/` (último chat o nuevo)
-- [ ] 4.6 `vercel.json` con rewrite de `/api/*` a FastAPI (excepto `/api/auth/*`), `maxDuration` para chat y clarify
+- [x] 4.1 Inicializar Next.js (App Router, TypeScript, Tailwind) en la raíz y `package.json`
+- [x] 4.2 Configurar Auth.js con Google y restringir a emails de `usuarios.yaml` (email verificado); pantalla de acceso denegado; sesión firmada HS256 compatible con el backend
+- [x] 4.3 Layout con barra superior, selector de perfil y tema claro/oscuro
+- [x] 4.4 Componente `ChatStream`: consumo de SSE, texto parcial y pasos con duración
+- [x] 4.5 Rutas `/chat/[id]` (historial y continuar) y `/` (último chat o nuevo)
+- [x] 4.6 `vercel.json` (`framework: nextjs`, `maxDuration` 300 s y archivos excluidos de la función Python) y rewrite de `/api/*` a FastAPI (excepto `/api/auth/*`) en `next.config.ts`
 - [ ] 4.7 Vincular la base Postgres de Vercel al proyecto y configurar variables de entorno: `DB_URL_VENTAS`, `DB_URL_PRODUCCION` y `DB_URL_APP` con el rol de cada uno y el host con pooler; `POSTGRES_URL_NON_POOLING` solo para migraciones
 - [ ] 4.8 Deploy en preview y prueba de punta a punta con el perfil ventas
 
@@ -51,7 +51,7 @@
 - [x] 5.2 En el loop: al recibirla, guardar `tool_use` pendiente, estado `esperando_aclaracion`, emitir evento y cerrar turno
 - [x] 5.3 Endpoint `POST /api/clarify`: aprobar (crea `brief_id`) o ajustar (comentario sin `brief_id`), arma el `tool_result` y reanuda el loop por SSE
 - [x] 5.4 Mensaje libre con aclaración pendiente → se envía como ajuste del `tool_use` pendiente
-- [ ] 5.5 Componente `ClarifyCard` (backend listo: evento `aclaraciones`, `aclaracion_pendiente` en el historial): preguntas por tipo, recomendada preseleccionada, brief "Voy a generar", botones Aprobar y Ajustar
+- [x] 5.5 Componente `ClarifyCard`: preguntas por tipo, recomendada preseleccionada, brief "Voy a generar", botones Aprobar y Ajustar: preguntas por tipo, recomendada preseleccionada, brief "Voy a generar", botones Aprobar y Ajustar
 - [x] 5.6 Pruebas: generación sin brief, brief de otra conversación, ajuste, aprobación
 
 ## 6. Fase 2 · Artifacts

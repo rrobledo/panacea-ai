@@ -4,7 +4,7 @@ Dos formas de usar el mismo agente analista sobre la base Postgres de Panacea:
 
 - **Claude Code + servidor MCP** (`mcp_server/server.py`): desde la terminal, para quien trabaja con
   Claude Code. Funciona hoy.
-- **App web** (`api/` + futura interfaz Next.js, en construcción): chat con perfiles, aclaraciones
+- **App web** (Next.js en la raíz + `api/` en FastAPI, desplegada en Vercel): chat con perfiles, aclaraciones
   obligatorias antes de cada reporte, reportes HTML versionados, galería y control de costos.
 
 Las dos usan las mismas herramientas (`agent/tools`) y la misma validación de SQL (`agent/sql_guard.py`).
@@ -61,6 +61,7 @@ claude        # aprobá el servidor "ventas-db" la primera vez; /mcp para verifi
 |---|---|
 | `ANTHROPIC_API_KEY` | Clave de la API de Anthropic |
 | `AUTH_SECRET` | Secreto de Auth.js (≥ 32 caracteres); el backend valida con él la sesión (JWT HS256) |
+| `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | Cliente OAuth de Google para el login |
 | `DB_URL_APP` | Base del esquema `app`, con el rol `agente_app` |
 | `DB_URL_<PERFIL>` | Una por perfil (ej. `DB_URL_VENTAS`), con el rol de solo lectura de ese perfil |
 
@@ -86,17 +87,36 @@ Usuarios: `config/usuarios.yaml`. Un email que no figura no entra. Cada usuario 
 `admin: true` (ve todo y el tablero de uso) y `tope_mensual_usd` (si no lo tiene, rige el tope general
 del archivo).
 
-### Correr local
-```bash
-pip install uvicorn && uvicorn api.index:app --reload
-```
+### Interfaz (Next.js)
+Next.js 16 (App Router) + Tailwind en la raíz: `app/` (rutas), `components/` (chat, aclaraciones,
+tarjetas), `lib/` (cliente de la API, SSE, sesión). Rutas: `/login`, `/` (última conversación),
+`/chat` (nueva) y `/chat/<id>`. El login es con Google y solo entran los emails de `config/usuarios.yaml`.
 
-### Despliegue (pendiente, grupo 4)
-Un proyecto de Vercel con Next.js en la raíz y `api/index.py` como función Python:
-- `vercel.json` reescribe `/api/*` (salvo `/api/auth/*`) al backend y da `maxDuration` alto a
-  `/api/chat` y `/api/clarify`.
-- Las variables de entorno de arriba se cargan en el proyecto.
-- Auth.js se configura para firmar la sesión como JWT HS256 (ver `design.md` del cambio).
+### Correr local
+Necesita Node ≥ 20.9.
+```bash
+npm install
+# Con la base y la API reales:
+uvicorn api.index:app --port 8000 &          # pip install uvicorn
+npm run dev                                   # http://localhost:3000, /api/* va a :8000
+
+# Sin base ni costo de API (Claude simulado con guion, almacén en memoria):
+AUTH_SECRET=... .venv/bin/python scripts/demo_backend.py &
+AUTH_SECRET=... npm run dev
+# entrar sin Google: cookie authjs.session-token = salida de `scripts/demo_backend.py --cookie`
+```
+Pruebas de la interfaz: `npm test` (SSE, eventos del chat, sesión compatible con el backend) y
+`npm run typecheck`.
+
+### Despliegue en Vercel
+Un solo proyecto con Next.js en la raíz y `api/index.py` como función Python (`vercel.json`):
+1. Framework: Next.js (lo fija `vercel.json`). Node 22 o más.
+2. Variables de entorno: las de la tabla de arriba más `AUTH_GOOGLE_ID` y `AUTH_GOOGLE_SECRET`
+   (ver `.env.example`).
+3. Google Cloud Console → Credenciales → ID de cliente OAuth ("Aplicación web"), con el URI de
+   redireccionamiento `https://<tu-dominio>/api/auth/callback/google`. Los deploys de preview tienen otra
+   URL: agregá también su URI, o probá el login en el dominio de producción.
+4. `config/usuarios.yaml` con los emails que pueden entrar (commit y deploy).
 
 ## 4. Pruebas y evaluación
 ```bash
