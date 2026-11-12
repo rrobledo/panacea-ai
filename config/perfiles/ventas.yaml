@@ -1,0 +1,29 @@
+id: ventas
+nombre: Analista comercial
+descripcion: Ventas, tickets, clientes, canasta y proyecciones
+modelo: claude-opus-5-5
+esfuerzo: medium
+prompt: prompts/ventas.md
+
+base_datos:
+  credencial_env: DB_URL_VENTAS        # rol agente_ventas_ro, solo SELECT
+  tablas:
+    - nombre: public.panacea_sales_v2
+      descripcion: Una fila por línea de comprobante
+      columna_fecha: operation_date
+      diccionario: prompts/diccionarios/panacea_sales_v2.md
+
+herramientas:
+  [perfil_datos, describir_tabla, resumen_ventas, comparar_periodos,
+   clientes_inactivos, productos_asociados, proyectar_ventas, consultar,
+   solicitar_aclaraciones, generar_artifact, editar_artifact]
+
+reglas:
+  # Ventas de mostrador: 999 Carlos Paz, 0 Villa Allende, 888 Córdoba, 777 Villa General Belgrano
+  excluir_clientes_en_analisis: [999, 0, 888, 777]
+
+limites:
+  max_filas: 500
+  timeout_sql_seg: 60
+  max_herramientas_por_turno: 25
+  presupuesto_tokens_por_turno: 200000

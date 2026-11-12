@@ -1,0 +1,77 @@
+{
+  "generado": "2026-11-12T00:48:31",
+  "valores": {
+    "ventas_oct_2026": {
+      "ventas": 58162610.0,
+      "tickets": 2975,
+      "ticket_promedio": 19550.4571
+    },
+    "unidades_sep_2026": {
+      "unidades": 11920.5297
+    },
+    "ventas_2025": {
+      "ventas": 388023708.0,
+      "tickets": 32015
+    },
+    "interanual_oct": {
+      "var_ventas": 58.9354,
+      "var_tickets": 6.8606
+    },
+    "sucursal_top_2025": {
+      "lugar_venta": "Carlos Paz",
+      "ventas": 178261217.0
+    },
+    "categoria_top_oct_2026": {
+      "category": "Otros",
+      "ventas": 21489867.0
+    },
+    "producto_top_unidades_t3_2026": {
+      "product": "Medialunas",
+      "unidades": 17268.0
+    },
+    "peso_mostrador_2025": {
+      "pct": 78.4212
+    },
+    "clientes_oct_2026": {
+      "clientes": 26
+    },
+    "hora_pico_2025": {
+      "hora": 18,
+      "tickets": 4724
+    },
+    "dia_top_2025": {
+      "dia": "Sabado"
+    },
+    "carlos_paz_oct_2026": {
+      "ventas": 28791781.0
+    },
+    "mejor_mes_2025": {
+      "mes": "diciembre",
+      "ventas": 46882881.0
+    },
+    "mes_a_la_fecha_nov": {
+      "ventas_2026": 11046966.0,
+      "ventas_2025": 14124857.0,
+      "variacion": -21.7906
+    },
+    "ticket_promedio_sucursal_2025": {
+      "lugar_venta": "Dietetica",
+      "ticket_promedio": 78473.254
+    },
+    "cliente_top_2025": {
+      "customer": "Crimar SRL",
+      "ventas": 17996486.0
+    },
+    "devoluciones_2025": {
+      "lineas": 680,
+      "importe": -7277505.0
+    },
+    "unidades_por_ticket_oct_2026": {
+      "unidades_por_ticket": 5.2149
+    },
+    "crecimiento_2025_vs_2024": {
+      "var_ventas": 98.0643,
+      "var_unidades": 22.4286
+    }
+  }
+}
