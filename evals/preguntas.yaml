@@ -1,0 +1,169 @@
+# Set de evaluación del perfil ventas (tarea 9.2).
+#
+# Cada pregunta trae una consulta SQL de verificación, escrita aparte de las herramientas del
+# agente, que calcula la respuesta correcta. Los valores esperados se guardan en esperado.json
+# con `python evals/evaluar.py verificar --guardar` y conviene revisarlos a mano una vez.
+# Solo períodos cerrados: las respuestas no cambian aunque entren ventas nuevas.
+#
+# valores: columna de la consulta → tipo
+#   monto       ARS, tolerancia relativa 1%
+#   cantidad    tolerancia relativa 0,5%
+#   decimal     tolerancia absoluta 0,05
+#   porcentaje  en puntos (12.3 = 12,3%), tolerancia absoluta 0,6; se acepta con o sin signo
+#   hora        0 a 23; se busca "11 h", "11:00", "11 hs"
+#   texto       tiene que aparecer en la respuesta (sin distinguir mayúsculas ni tildes)
+# menciona: palabras que tienen que aparecer (para preguntas sin número)
+perfil: ventas
+tabla: public.panacea_sales_v2
+
+preguntas:
+  - id: ventas_oct_2026
+    pregunta: ¿Cuánto vendimos en octubre de 2026? Dame ventas, tickets y ticket promedio.
+    sql: |
+      SELECT SUM(subtotal) AS ventas, COUNT(DISTINCT document_id) AS tickets,
+             SUM(subtotal) / COUNT(DISTINCT document_id) AS ticket_promedio
+      FROM {T} WHERE operation_date BETWEEN '2026-10-01' AND '2026-10-31'
+    valores: {ventas: monto, tickets: cantidad, ticket_promedio: monto}
+
+  - id: unidades_sep_2026
+    pregunta: ¿Cuántas unidades vendimos en septiembre de 2026?
+    sql: SELECT SUM(count) AS unidades FROM {T} WHERE operation_date BETWEEN '2026-09-01' AND '2026-09-30'
+    valores: {unidades: cantidad}
+
+  - id: ventas_2025
+    pregunta: ¿Cuánto vendimos en todo 2025 y en cuántos tickets?
+    sql: |
+      SELECT SUM(subtotal) AS ventas, COUNT(DISTINCT document_id) AS tickets
+      FROM {T} WHERE operation_date BETWEEN '2025-01-01' AND '2025-12-31'
+    valores: {ventas: monto, tickets: cantidad}
+
+  - id: interanual_oct
+    pregunta: ¿Cuánto crecieron las ventas y los tickets de octubre 2026 contra octubre 2025, en porcentaje?
+    sql: |
+      WITH a AS (SELECT SUM(subtotal) v, COUNT(DISTINCT document_id) t FROM {T}
+                 WHERE operation_date BETWEEN '2026-10-01' AND '2026-10-31'),
+           b AS (SELECT SUM(subtotal) v, COUNT(DISTINCT document_id) t FROM {T}
+                 WHERE operation_date BETWEEN '2025-10-01' AND '2025-10-31')
+      SELECT 100 * (a.v / b.v - 1) AS var_ventas, 100 * (a.t::numeric / b.t - 1) AS var_tickets FROM a, b
+    valores: {var_ventas: porcentaje, var_tickets: porcentaje}
+
+  - id: sucursal_top_2025
+    pregunta: ¿Qué lugar de venta vendió más en 2025 y cuánto?
+    sql: |
+      SELECT lugar_venta, SUM(subtotal) AS ventas FROM {T}
+      WHERE operation_date BETWEEN '2025-01-01' AND '2025-12-31'
+      GROUP BY lugar_venta ORDER BY ventas DESC LIMIT 1
+    valores: {lugar_venta: texto, ventas: monto}
+
+  - id: categoria_top_oct_2026
+    pregunta: ¿Cuál fue la categoría con más ventas en octubre de 2026 y cuánto vendió?
+    sql: |
+      SELECT category, SUM(subtotal) AS ventas FROM {T}
+      WHERE operation_date BETWEEN '2026-10-01' AND '2026-10-31'
+      GROUP BY category ORDER BY ventas DESC LIMIT 1
+    valores: {category: texto, ventas: monto}
+
+  - id: producto_top_unidades_t3_2026
+    pregunta: ¿Qué producto vendió más unidades en el tercer trimestre de 2026 (julio a septiembre)?
+    sql: |
+      SELECT product, SUM(count) AS unidades FROM {T}
+      WHERE operation_date BETWEEN '2026-07-01' AND '2026-09-30'
+      GROUP BY product ORDER BY unidades DESC LIMIT 1
+    valores: {product: texto, unidades: cantidad}
+
+  - id: peso_mostrador_2025
+    pregunta: ¿Qué porcentaje de las ventas de 2025 corresponde a los clientes genéricos de mostrador?
+    sql: |
+      SELECT 100 * SUM(subtotal) FILTER (WHERE customer_id IN (999, 0, 888, 777)) / SUM(subtotal) AS pct
+      FROM {T} WHERE operation_date BETWEEN '2025-01-01' AND '2025-12-31'
+    valores: {pct: porcentaje}
+
+  - id: clientes_oct_2026
+    pregunta: ¿Cuántos clientes identificados distintos compraron en octubre de 2026, sin contar los de mostrador?
+    sql: |
+      SELECT COUNT(DISTINCT customer_id) AS clientes FROM {T}
+      WHERE operation_date BETWEEN '2026-10-01' AND '2026-10-31' AND customer_id NOT IN (999, 0, 888, 777)
+    valores: {clientes: cantidad}
+
+  - id: hora_pico_2025
+    pregunta: ¿En qué hora del día hubo más tickets en 2025?
+    sql: |
+      SELECT operation_hour AS hora, COUNT(DISTINCT document_id) AS tickets FROM {T}
+      WHERE operation_date BETWEEN '2025-01-01' AND '2025-12-31'
+      GROUP BY operation_hour ORDER BY tickets DESC LIMIT 1
+    valores: {hora: hora, tickets: cantidad}
+
+  - id: dia_top_2025
+    pregunta: ¿Qué día de la semana vendimos más en 2025?
+    sql: |
+      SELECT day_of_week_text AS dia, SUM(subtotal) AS ventas FROM {T}
+      WHERE operation_date BETWEEN '2025-01-01' AND '2025-12-31'
+      GROUP BY day_of_week_text ORDER BY ventas DESC LIMIT 1
+    valores: {dia: texto}
+
+  - id: carlos_paz_oct_2026
+    pregunta: ¿Cuánto vendió Carlos Paz en octubre de 2026?
+    sql: |
+      SELECT SUM(subtotal) AS ventas FROM {T}
+      WHERE operation_date BETWEEN '2026-10-01' AND '2026-10-31' AND lugar_venta = 'Carlos Paz'
+    valores: {ventas: monto}
+
+  - id: mejor_mes_2025
+    pregunta: ¿Cuál fue el mejor mes de 2025 en ventas y cuánto se vendió?
+    sql: |
+      SELECT (ARRAY['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre',
+                    'octubre','noviembre','diciembre'])[operation_month] AS mes, SUM(subtotal) AS ventas
+      FROM {T} WHERE operation_date BETWEEN '2025-01-01' AND '2025-12-31'
+      GROUP BY operation_month ORDER BY ventas DESC LIMIT 1
+    valores: {mes: texto, ventas: monto}
+
+  - id: mes_a_la_fecha_nov
+    pregunta: Compará las ventas del 1 al 10 de noviembre de 2026 contra el 1 al 10 de noviembre de 2025. ¿Cuánto en cada período y qué variación?
+    sql: |
+      WITH a AS (SELECT SUM(subtotal) v FROM {T} WHERE operation_date BETWEEN '2026-11-01' AND '2026-11-10'),
+           b AS (SELECT SUM(subtotal) v FROM {T} WHERE operation_date BETWEEN '2025-11-01' AND '2025-11-10')
+      SELECT a.v AS ventas_2026, b.v AS ventas_2025, 100 * (a.v / b.v - 1) AS variacion FROM a, b
+    valores: {ventas_2026: monto, ventas_2025: monto, variacion: porcentaje}
+
+  - id: ticket_promedio_sucursal_2025
+    pregunta: ¿Qué lugar de venta tuvo el ticket promedio más alto en 2025 y de cuánto?
+    sql: |
+      SELECT lugar_venta, SUM(subtotal) / COUNT(DISTINCT document_id) AS ticket_promedio FROM {T}
+      WHERE operation_date BETWEEN '2025-01-01' AND '2025-12-31'
+      GROUP BY lugar_venta ORDER BY ticket_promedio DESC LIMIT 1
+    valores: {lugar_venta: texto, ticket_promedio: monto}
+
+  - id: cliente_top_2025
+    pregunta: ¿Quién fue el cliente identificado (sin contar los de mostrador) que más nos compró en 2025 y por cuánto?
+    sql: |
+      SELECT customer, SUM(subtotal) AS ventas FROM {T}
+      WHERE operation_date BETWEEN '2025-01-01' AND '2025-12-31' AND customer_id NOT IN (999, 0, 888, 777)
+      GROUP BY customer_id, customer ORDER BY ventas DESC LIMIT 1
+    valores: {customer: texto, ventas: monto}
+
+  - id: devoluciones_2025
+    pregunta: ¿Cuántas líneas con importe negativo (devoluciones o notas de crédito) hubo en 2025 y por qué importe total?
+    sql: |
+      SELECT COUNT(*) AS lineas, SUM(subtotal) AS importe FROM {T}
+      WHERE operation_date BETWEEN '2025-01-01' AND '2025-12-31' AND subtotal < 0
+    valores: {lineas: cantidad, importe: monto}
+
+  - id: margen_oct_2026
+    pregunta: ¿Cuál fue el margen de ganancia de octubre de 2026?
+    # No hay costos en la tabla: la respuesta correcta es decirlo y preguntar por otra fuente.
+    menciona: [costo]
+
+  - id: unidades_por_ticket_oct_2026
+    pregunta: ¿Cuántas unidades por ticket vendimos en promedio en octubre de 2026?
+    sql: |
+      SELECT SUM(count) / COUNT(DISTINCT document_id) AS unidades_por_ticket FROM {T}
+      WHERE operation_date BETWEEN '2026-10-01' AND '2026-10-31'
+    valores: {unidades_por_ticket: decimal}
+
+  - id: crecimiento_2025_vs_2024
+    pregunta: ¿Cuánto crecieron en porcentaje las ventas en pesos y las unidades de 2025 respecto de 2024?
+    sql: |
+      WITH a AS (SELECT SUM(subtotal) v, SUM(count) u FROM {T} WHERE operation_date BETWEEN '2025-01-01' AND '2025-12-31'),
+           b AS (SELECT SUM(subtotal) v, SUM(count) u FROM {T} WHERE operation_date BETWEEN '2024-01-01' AND '2024-12-31')
+      SELECT 100 * (a.v / b.v - 1) AS var_ventas, 100 * (a.u / b.u - 1) AS var_unidades FROM a, b
+    valores: {var_ventas: porcentaje, var_unidades: porcentaje}

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{titulo}}</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+/* Plantilla base de reportes Panacea. Autocontenida: sin fuentes ni recursos externos salvo Chart.js. */
+:root {
+  --bg: #f8f8f6; --surface: #ffffff; --fg: #1d1c1a; --fg-2: #52514e; --muted: #7a7873;
+  --line: #e4e2dc; --accent: #8a4b14; --accent-soft: #f4e8db;
+  --good: #1f7a3a; --bad: #b3261e; --warn: #9a6400;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #7d5bd0;
+  --font-display: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161614; --surface: #1f1f1d; --fg: #f0efec; --fg-2: #c3c2b7; --muted: #9a988f;
+  --line: #34332f; --accent: #e0a46a; --accent-soft: #3a2a1b;
+  --good: #5cc27a; --bad: #f08079; --warn: #e3b04b;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #9b7fe6;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #161614; --surface: #1f1f1d; --fg: #f0efec; --fg-2: #c3c2b7; --muted: #9a988f;
+  --line: #34332f; --accent: #e0a46a; --accent-soft: #3a2a1b;
+  --good: #5cc27a; --bad: #f08079; --warn: #e3b04b;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #9b7fe6;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 40px 16px 64px; display: grid; gap: 48px; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.15; text-wrap: balance; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.45rem; font-weight: 700; }
+p { margin: 0; max-width: 72ch; }
+.eyebrow { font-family: var(--font-data); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.lede { color: var(--fg-2); font-size: 1.1rem; }
+section { display: grid; gap: 18px; min-width: 0; }
+header.top { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 20px; color: var(--muted); font-size: 0.9rem; }
+.texto { display: grid; gap: 10px; color: var(--fg-2); }
+.texto strong { color: var(--fg); }
+.texto ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 4px; }
+
+.findings { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; counter-reset: f; }
+.findings li { display: grid; grid-template-columns: 2rem 1fr; gap: 12px; align-items: baseline; padding-block: 10px; border-bottom: 1px solid var(--line); }
+.findings li::before { counter-increment: f; content: counter(f); font-family: var(--font-display); font-weight: 700; color: var(--accent); font-size: 1.25rem; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 4px; min-width: 0; }
+.kpi .lbl { font-size: 0.85rem; color: var(--fg-2); }
+.kpi .val { font-family: var(--font-data); font-size: 1.4rem; font-weight: 500; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.kpi .cmp { font-size: 0.85rem; color: var(--muted); }
+.delta { font-family: var(--font-data); font-weight: 500; }
+.up { color: var(--good); } .down { color: var(--bad); } .flat { color: var(--warn); }
+
+figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 10px; min-width: 0; }
+figcaption { color: var(--fg-2); font-size: 0.92rem; }
+.chart { position: relative; height: 320px; }
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-weight: 600; color: var(--fg-2); font-size: 0.82rem; }
+td[data-f], th.r { text-align: right; font-family: var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.strats { display: grid; gap: 14px; }
+.strat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; }
+.strat .top { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; justify-content: space-between; }
+.strat h3 { font-size: 1.05rem; }
+.pill { font-family: var(--font-data); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; }
+.pill.alta { color: var(--bad); } .pill.media { color: var(--warn); } .pill.baja { color: var(--muted); }
+.chain { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 18px; margin: 0; }
+.chain dt { font-family: var(--font-data); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.chain dd { margin: 2px 0 0; font-size: 0.95rem; }
+.chain dd.impact { font-family: var(--font-data); color: var(--accent); font-weight: 500; }
+.method { color: var(--fg-2); font-size: 0.92rem; }
+footer { color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <span class="eyebrow">Panacea · {{perfil}}</span>
+  <h1>{{titulo}}</h1>
+  {{subtitulo}}
+  <div class="meta">{{meta}}</div>
+</header>
+{{cuerpo}}
+<footer>Generado el {{fecha}} por el Agente Panacea. Los datos están embebidos en este archivo.</footer>
+</div>
+<script type="application/json" id="panacea-graficos">{{graficos}}</script>
+<script>
+(function () {
+  "use strict";
+  var fmt = {
+    moneda: new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }),
+    moneda2: new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }),
+    numero: new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }),
+    decimal: new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }),
+    porcentaje: new Intl.NumberFormat("es-AR", { style: "percent", maximumFractionDigits: 1 })
+  };
+  function formatear(v, f) {
+    if (v === null || v === undefined || v === "" || isNaN(Number(v))) return v === null || v === undefined ? "—" : String(v);
+    return (fmt[f] || fmt.decimal).format(Number(v));
+  }
+  // Números del documento: data-v (valor crudo) + data-f (formato).
+  document.querySelectorAll("[data-v]").forEach(function (el) {
+    el.textContent = formatear(el.getAttribute("data-v"), el.getAttribute("data-f"));
+  });
+  document.querySelectorAll("[data-delta]").forEach(function (el) {
+    var d = Number(el.getAttribute("data-delta"));
+    el.textContent = (d > 0 ? "▲ +" : d < 0 ? "▼ " : "■ ") + fmt.porcentaje.format(d);
+    el.classList.add(d > 0.005 ? "up" : d < -0.005 ? "down" : "flat");
+  });
+
+  if (!window.Chart) return;
+  var css = getComputedStyle(document.documentElement);
+  function v(n) { return css.getPropertyValue(n).trim(); }
+  var paleta = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6"].map(v);
+  Chart.defaults.color = v("--fg-2");
+  Chart.defaults.borderColor = v("--line");
+  Chart.defaults.font.family = v("--font-body");
+
+  var graficos = JSON.parse(document.getElementById("panacea-graficos").textContent || "[]");
+  graficos.forEach(function (g) {
+    var canvas = document.getElementById(g.id);
+    if (!canvas) return;
+    var circular = g.tipo === "doughnut" || g.tipo === "pie";
+    var color = 0;
+    var datasets = g.series.map(function (s) {
+      var c = s.rol === "banda_min" || s.rol === "banda_max" ? paleta[Math.max(color - 1, 0)] : paleta[color++ % paleta.length];
+      var d = { label: s.nombre, data: s.datos, type: s.tipo || undefined, borderColor: c, backgroundColor: c,
+                borderWidth: 2, pointRadius: g.tipo === "line" ? 2 : 0, tension: 0.25, spanGaps: true };
+      if (circular) { d.backgroundColor = s.datos.map(function (_, i) { return paleta[i % paleta.length]; }); d.borderColor = v("--surface"); }
+      if (s.rol === "proyeccion") { d.borderDash = [6, 4]; d.backgroundColor = "transparent"; }
+      if (s.rol === "banda_min" || s.rol === "banda_max") {
+        d.borderWidth = 0; d.pointRadius = 0; d.backgroundColor = c + "33";
+        d.fill = s.rol === "banda_max" ? "-1" : false;
+      }
+      return d;
+    });
+    var ejes = circular ? {} : {
+      x: { stacked: !!g.apilado, grid: { display: false } },
+      y: { stacked: !!g.apilado, beginAtZero: g.tipo === "bar",
+           ticks: { callback: function (val) { return formatear(val, g.formato); } } }
+    };
+    new Chart(canvas, {
+      type: g.tipo,
+      data: { labels: g.etiquetas, datasets: datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false, interaction: { mode: circular ? "nearest" : "index", intersect: false },
+        scales: ejes,
+        plugins: {
+          legend: { display: datasets.length > 1 || circular, labels: { filter: function (it) {
+            var s = g.series[it.datasetIndex]; return !s || s.rol !== "banda_min"; } } },
+          tooltip: { callbacks: { label: function (ctx) {
+            var val = circular ? ctx.parsed : ctx.parsed.y;
+            var nombre = circular ? ctx.label : ctx.dataset.label;
+            return (nombre ? nombre + ": " : "") + formatear(val, g.formato); } } }
+        }
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
