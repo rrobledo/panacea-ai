@@ -8,4 +8,6 @@
 #     - { email: ventas1@example.com,   perfiles: [ventas] }
 #     - { email: gerencia@example.com,  perfiles: [ventas], admin: true, tope_mensual_usd: 100 }
 tope_mensual_usd: 50
-usuarios: []
+usuarios:
+  - { email: panacea.bakeryglutenfree@gmail.com, perfiles: [ventas] }
+  - { email: raul.osvaldo.robledo@gmail.com, perfiles: [ventas] }
