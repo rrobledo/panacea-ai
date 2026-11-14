@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from pydantic import BaseModel, ConfigDict, create_model
 
 from agent.contexto import ContextoPerfil
-from agent.tools import clarify, generic, reportes, ventas
+from agent.tools import clarify, externas, generic, reportes, ventas
 
 # Mismo orden que el servidor MCP original.
 HERRAMIENTAS: dict[str, typing.Callable[..., str]] = {
@@ -30,6 +30,9 @@ HERRAMIENTAS: dict[str, typing.Callable[..., str]] = {
         ventas.productos_asociados,
         ventas.proyectar_ventas,
         generic.consultar,
+        externas.ventas_con_contexto,
+        externas.impacto_variables,
+        externas.contexto_proximos_dias,
     )
 }
 

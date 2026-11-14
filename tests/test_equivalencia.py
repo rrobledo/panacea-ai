@@ -69,11 +69,17 @@ def test_consultar_rechaza_igual(servidores, sql):
     assert "error" in json.loads(nuevo.consultar(sql))
 
 
+# Herramientas agregadas después del servidor original (cambio variables-externas-ventas).
+NUEVAS = ["ventas_con_contexto", "impacto_variables", "contexto_proximos_dias"]
+
+
 def test_misma_lista_de_herramientas(servidores):
+    """Las 8 originales quedan idénticas y en el mismo orden; las nuevas van al final."""
     viejo, nuevo = servidores
     a = [t.model_dump() for t in asyncio.run(viejo.mcp.list_tools())]
     b = [t.model_dump() for t in asyncio.run(nuevo.mcp.list_tools())]
-    assert b == a
+    assert b[:len(a)] == a
+    assert [t["name"] for t in b[len(a):]] == NUEVAS
 
 
 def test_compatibilidad_scripts(servidores):

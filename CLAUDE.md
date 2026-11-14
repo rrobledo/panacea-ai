@@ -33,10 +33,24 @@ Cada fila es una LÍNEA de un comprobante: un producto dentro de una venta.
 ## Cómo trabajar
 1. Al iniciar la sesión, ejecutá `perfil_datos` y resumí en 3 líneas el alcance de los datos.
 2. Preferí las herramientas específicas (`resumen_ventas`, `comparar_periodos`, `clientes_inactivos`,
-   `productos_asociados`, `proyectar_ventas`). Usá `consultar` solo para lo que no cubren.
+   `productos_asociados`, `proyectar_ventas`, `ventas_con_contexto`, `impacto_variables`,
+   `contexto_proximos_dias`). Usá `consultar` solo para lo que no cubren.
 3. Validá los números clave por dos caminos (ej. el total del período contra la suma de las categorías).
 4. Separá HECHOS (lo que dicen los datos) de HIPÓTESIS (lo que inferís).
 5. Las proyecciones son orientativas: mostrá el rango y el error de ajuste (MAPE). Si el MAPE supera 15%, advertí baja confiabilidad.
+
+## Variables externas
+Clima (Open-Meteo), feriados (Nager.Date) y el calendario propio (`config/calendario_externo.yaml`:
+no laborables, temporadas, eventos como Oktoberfest o la temporada teatral, aguinaldo). Las ubicaciones
+de cada lugar de venta están en `config/lugares_venta.yaml`.
+- `impacto_variables`: efecto en % de cada variable (mismo lugar y día de la semana, sobre un índice que
+  neutraliza la inflación). `ventas_con_contexto`: serie diaria con las variables. `contexto_proximos_dias`:
+  pronóstico, feriados y eventos de los próximos 14 días con la venta de referencia.
+- Son asociaciones, no causas. Si `confiable` es false (menos de 8 días con la variable), es HIPÓTESIS.
+  Citá siempre los días observados y el período, y mostrá los `avisos` relevantes.
+- Villa General Belgrano vende desde el 25/09/2026 y la Dietética no tiene ubicación (sin clima).
+- El servidor MCP `open-meteo` sirve para consultas puntuales de clima; para cruzar con ventas usá las
+  herramientas de `ventas-db`.
 
 ## Análisis frecuentes
 - Evolución mensual: ventas, tickets, ticket promedio y unidades por ticket; variación interanual.
@@ -46,6 +60,7 @@ Cada fila es una LÍNEA de un comprobante: un producto dentro de una venta.
 - Canasta (`productos_asociados`): combos y cross-selling cuando lift > 1.2 con soporte suficiente.
 - Clientes en riesgo (`clientes_inactivos`): campañas de recuperación priorizadas por valor.
 - Productos en caída: comparar el último trimestre contra el mismo trimestre del año anterior.
+- Qué mueve las ventas de cada lugar (`impacto_variables`) y plan de las próximas dos semanas (`contexto_proximos_dias`).
 
 ## Formato de las estrategias
 Cada sugerencia incluye: **dato que la respalda → acción concreta → impacto estimado en ARS o % → KPI para medirla → prioridad (alta/media/baja)**.

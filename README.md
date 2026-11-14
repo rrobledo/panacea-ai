@@ -38,6 +38,29 @@ claude        # aprobá el servidor "ventas-db" la primera vez; /mcp para verifi
 | productos_asociados | Canasta: soporte, confianza y lift entre productos |
 | proyectar_ventas | Proyección mensual con tendencia, estacionalidad y rango |
 | consultar | SQL libre de solo lectura, validado con sqlglot |
+| ventas_con_contexto | Serie diaria por lugar con clima, feriados, fin de semana largo, cobro, temporada y eventos |
+| impacto_variables | Efecto en % de cada variable externa sobre la venta diaria, con días observados |
+| contexto_proximos_dias | Pronóstico, feriados y eventos de los próximos 14 días con venta de referencia |
+
+### Variables externas
+Las tres últimas herramientas cruzan las ventas con datos de afuera. Funcionan igual en Claude Code y
+en la app web.
+
+| Fuente | Qué aporta | Acceso |
+|---|---|---|
+| [Open-Meteo](https://open-meteo.com) | Clima diario histórico y pronóstico a 16 días | Gratis sin clave para uso no comercial; con plan comercial, `OPEN_METEO_API_KEY` |
+| [Nager.Date](https://date.nager.at) | Feriados nacionales de Argentina | Gratis, sin clave |
+| `config/calendario_externo.yaml` | Días no laborables y puentes, vacaciones de invierno, eventos locales, aguinaldo | Manual: revisarlo cada trimestre |
+| `config/lugares_venta.yaml` | Coordenadas de cada lugar de venta | Manual |
+
+- **Tráfico saliente:** solo HTTPS a `archive-api.open-meteo.com`, `api.open-meteo.com` y `date.nager.at`,
+  con coordenadas, fechas y el código de país. Ningún dato de ventas ni de clientes sale del sistema.
+- Si una fuente no responde, la herramienta devuelve igual el resto y lo informa en `avisos`.
+- Un lugar de venta nuevo necesita su entrada en `config/lugares_venta.yaml` para tener clima.
+- `.mcp.json` incluye además el servidor `open-meteo` (npx) para consultas puntuales de clima desde
+  Claude Code. Requiere Node.
+- **Fase 2 (no incluida, requieren cuenta o son pagos):** TomTom Maps y Traffic Analytics (tránsito en los
+  accesos), PredictHQ y Fever (eventos), AccuWeather y Xweather (clima), series macro del BCRA e INDEC.
 
 ## 3. App web
 
@@ -147,6 +170,8 @@ Correlo antes y después de cambiar el prompt, el modelo o el esfuerzo de un per
 - "¿Qué productos se compran juntos? Sugerí 3 combos."
 - "Listá los clientes que dejaron de comprar y armá una estrategia de recuperación."
 - "Agregá al reporte un mapa de calor de día × hora." (crea una versión nueva del mismo reporte)
+- "¿Qué mueve las ventas en Carlos Paz? ¿Cuánto pesan la lluvia y los fines de semana largos?"
+- "¿Qué esperamos para las próximas dos semanas en cada local? Sugerí dotación y stock."
 
 ## Base de pruebas (opcional, NUNCA en producción)
 ```bash
