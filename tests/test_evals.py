@@ -19,7 +19,7 @@ def test_numeros_es_ar():
 
 def test_preguntas_bien_formadas():
     datos = evaluar.cargar()
-    assert len(datos["preguntas"]) == 20
+    assert len(datos["preguntas"]) == 22  # 20 originales + 2 de variables externas
     esperado = json.loads(evaluar.ESPERADO.read_text())["valores"]
     for p in datos["preguntas"]:
         if p.get("sql"):

@@ -1,0 +1,42 @@
+# Ubicación de cada lugar de venta (lugar_venta_id de panacea_sales_v2).
+# La usan las herramientas de variables externas para pedir el clima a Open-Meteo.
+# Solo se envían las coordenadas y las fechas: ningún dato de ventas sale del sistema.
+#
+# perfil: residencial | turistico | eventos | capital | sin_ubicacion
+# Un lugar sin lat/lon no tiene clima (las demás variables sí se calculan).
+
+zona_horaria: America/Argentina/Cordoba
+
+lugares:
+  - id: 0
+    nombre: Dietetica
+    localidad: null          # A confirmar: ¿local físico, mayorista u online? Ticket promedio ~10x el de los locales
+    perfil: sin_ubicacion
+
+  - id: 1
+    nombre: Villa Allende
+    localidad: Villa Allende (Sierras Chicas)
+    lat: -31.2950
+    lon: -64.2953
+    perfil: residencial
+
+  - id: 2
+    nombre: Carlos Paz
+    localidad: Villa Carlos Paz (Valle de Punilla)
+    lat: -31.4241
+    lon: -64.4978
+    perfil: turistico
+
+  - id: 3
+    nombre: Cordoba
+    localidad: Córdoba Capital
+    lat: -31.4201
+    lon: -64.1888
+    perfil: capital          # Última venta registrada: 18/03/2026
+
+  - id: 4
+    nombre: Villa General Belgrano
+    localidad: Villa General Belgrano (Valle de Calamuchita)
+    lat: -31.9786
+    lon: -64.5561
+    perfil: eventos          # Vende desde el 25/09/2026: poca historia

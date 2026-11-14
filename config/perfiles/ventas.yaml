@@ -16,6 +16,7 @@ base_datos:
 herramientas:
   [perfil_datos, describir_tabla, resumen_ventas, comparar_periodos,
    clientes_inactivos, productos_asociados, proyectar_ventas, consultar,
+   ventas_con_contexto, impacto_variables, contexto_proximos_dias,
    solicitar_aclaraciones, generar_artifact, editar_artifact]
 
 reglas:

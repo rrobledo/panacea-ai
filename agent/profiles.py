@@ -17,13 +17,17 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
 from agent.contexto import ContextoPerfil, normalizar_url, validar_nombre_tabla
+from agent.externas.config import ErrorConfigExterna, cargar_calendario
 from agent.tools import registro
 
 RAIZ = Path(__file__).resolve().parent.parent
 
 # Herramientas que leen columnas de ventas y necesitan la tabla principal completa.
 HERRAMIENTAS_VENTAS = {"perfil_datos", "resumen_ventas", "comparar_periodos", "clientes_inactivos",
-                       "productos_asociados", "proyectar_ventas"}
+                       "productos_asociados", "proyectar_ventas",
+                       "ventas_con_contexto", "impacto_variables", "contexto_proximos_dias"}
+# Herramientas que leen config/lugares_venta.yaml y config/calendario_externo.yaml.
+HERRAMIENTAS_EXTERNAS = {"ventas_con_contexto", "impacto_variables", "contexto_proximos_dias"}
 
 
 class ErrorConfiguracion(Exception):
@@ -199,6 +203,11 @@ def cargar_configuracion(raiz: Path = RAIZ) -> Configuracion:
         perfiles[perfil.id] = perfil
     if not perfiles:
         raise ErrorConfiguracion(f"No hay perfiles en {raiz / 'config/perfiles'}")
+    if any(HERRAMIENTAS_EXTERNAS & set(p.herramientas) for p in perfiles.values()):
+        try:
+            cargar_calendario(raiz)  # valida también lugares_venta.yaml
+        except ErrorConfigExterna as e:
+            raise ErrorConfiguracion(str(e)) from None
 
     ruta_u = raiz / "config/usuarios.yaml"
     try:
