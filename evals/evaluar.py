@@ -5,7 +5,7 @@ Evaluación del agente con preguntas reales (tarea 9.2).
                                                las compara con esperado.json (sin costo de API)
   python evals/evaluar.py verificar --guardar  escribe esperado.json (revisarlo a mano)
   python evals/evaluar.py correr [--solo a,b]  corre el agente con la API real y califica.
-                                               CUESTA PLATA: ~US$ 0,10–0,30 por pregunta con Opus 5.5.
+                                               CUESTA PLATA: ~US$ 0,05–0,15 por pregunta con Sonnet 5.5 (el doble con Opus 5.5).
   --perfil compras|produccion|tesoreria        cualquiera de los comandos, para otro perfil: usa
                                                preguntas_<perfil>.yaml y esperado_<perfil>.json.
 

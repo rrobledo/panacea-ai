@@ -1,7 +1,7 @@
 id: ventas
 nombre: Analista comercial
 descripcion: Ventas, tickets, clientes, canasta y proyecciones
-modelo: claude-opus-5-5
+modelo: claude-sonnet-5-5
 esfuerzo: medium
 prompt: prompts/ventas.md
 

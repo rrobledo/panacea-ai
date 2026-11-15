@@ -1,7 +1,7 @@
 id: tesoreria
 nombre: Analista de tesorería
 descripcion: Cobros por medio de pago, pagos a proveedores, vencimientos y saldos
-modelo: claude-opus-5-5
+modelo: claude-sonnet-5-5
 esfuerzo: medium
 prompt: prompts/tesoreria.md
 

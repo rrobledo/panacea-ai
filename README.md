@@ -66,7 +66,7 @@ en la app web.
 
 ### Cómo funciona
 - `api/index.py` (FastAPI) es el backend; Vercel lo sirve como función Python en `/api/*`.
-- `agent/loop.py` corre cada turno contra la Messages API (Claude Opus 5.5) en streaming (SSE).
+- `agent/loop.py` corre cada turno contra la Messages API (el modelo de cada perfil, hoy Claude Sonnet 5.5) en streaming (SSE).
   Guarda cada paso en Postgres, así un turno cortado se retoma sin repetir consultas.
 - Antes de un reporte, el agente llama a `solicitar_aclaraciones`. El turno se pausa hasta que el
   usuario aprueba o ajusta el brief (`POST /api/clarify`). `generar_artifact` exige el brief aprobado.

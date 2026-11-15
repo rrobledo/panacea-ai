@@ -1,7 +1,7 @@
 id: compras
 nombre: Analista de compras
 descripcion: Facturas de proveedores, gasto por categoría, deuda y pagos
-modelo: claude-opus-5-5
+modelo: claude-sonnet-5-5
 esfuerzo: medium
 prompt: prompts/compras.md
 

@@ -1,7 +1,7 @@
 id: produccion
 nombre: Analista de producción
 descripcion: Plan contra real, órdenes, desperdicio, stock, recetas y costo de materia prima
-modelo: claude-opus-5-5
+modelo: claude-sonnet-5-5
 esfuerzo: medium
 prompt: prompts/produccion.md
 

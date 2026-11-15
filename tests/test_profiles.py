@@ -11,7 +11,7 @@ from tests.conftest import RAIZ
 def test_configuracion_real():
     c = cargar_configuracion()
     p = c.perfiles["ventas"]
-    assert p.modelo == "claude-opus-5-5" and p.tabla_principal == "public.panacea_sales_v2"
+    assert p.modelo == "claude-sonnet-5-5" and p.tabla_principal == "public.panacea_sales_v2"
     assert p.reglas.excluir_clientes_en_analisis == [999, 0, 888, 777]
     prompt = p.system_prompt()
     assert "Analista comercial de Panacea" in prompt and "| document_id |" in prompt
