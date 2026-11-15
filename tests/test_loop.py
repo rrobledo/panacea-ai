@@ -209,6 +209,20 @@ def test_error_de_api_libera_el_turno(almacen, herramientas, ctx):
     assert [m["role"] for m in almacen.mensajes(cid)] == ["user"]  # nada a medias
 
 
+def test_error_400_muestra_el_motivo(almacen, herramientas, ctx, caplog):
+    req = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+    cuerpo = {"type": "error", "error": {"type": "invalid_request_error",
+                                         "message": "Your credit balance is too low to access the Anthropic API."}}
+    err = anthropic.BadRequestError("Error code: 400", response=httpx.Response(400, request=req, json=cuerpo),
+                                    body=cuerpo)
+    agente, cid = nuevo(almacen, ClienteFalso(Falla(err)), ctx)
+    ev = correr(agente, almacen, cid, "Algo")
+    assert tipos(ev) == ["error"]
+    assert ev[0]["mensaje"].startswith("Error del servicio del modelo (400): Your credit balance is too low")
+    assert "invalid_request_error" in ev[0]["mensaje"]
+    assert "credit balance" in caplog.text and almacen.conversacion(cid).estado == "lista"
+
+
 def test_sin_fallbacks(almacen, herramientas, ctx):
     cliente = ClienteFalso(mensaje(texto("Hola")))
     p = perfil_prueba()

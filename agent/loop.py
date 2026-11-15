@@ -142,6 +142,15 @@ def _filas(resultado: str) -> int | None:
     return None
 
 
+def _detalle_error_api(e: "anthropic.APIStatusError") -> str:
+    """Motivo que da la API (ej. saldo insuficiente, parámetro inválido), recortado para mostrarlo."""
+    cuerpo = e.body if isinstance(e.body, dict) else {}
+    error = cuerpo.get("error") if isinstance(cuerpo.get("error"), dict) else {}
+    texto = error.get("message") or getattr(e, "message", "") or "sin detalle"
+    tipo = error.get("type")
+    return (f"{texto} [{tipo}]" if tipo else texto).strip()[:300]
+
+
 class Agente:
     def __init__(self, cliente: anthropic.Anthropic, almacen: Almacen, perfil: Perfil,
                  ctx: ContextoPerfil, system_prompt: str, fallbacks: bool = True):
@@ -310,7 +319,11 @@ class Agente:
                 yield {"tipo": "error", "mensaje": "No se pudo conectar con el modelo. Probá de nuevo."}
                 return None
             except anthropic.APIStatusError as e:
-                yield {"tipo": "error", "mensaje": f"Error del servicio del modelo ({e.status_code})."}
+                detalle = _detalle_error_api(e)
+                log.error("API %s en perfil %s (request_id=%s): %s", e.status_code, self.perfil.id,
+                          getattr(e, "request_id", None), detalle)
+                yield {"tipo": "error",
+                       "mensaje": f"Error del servicio del modelo ({e.status_code}): {detalle}"}
                 return None
         return None
 
