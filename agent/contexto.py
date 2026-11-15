@@ -33,6 +33,8 @@ class ContextoPerfil:
                          tabla permitida tiene columnas acotadas.
     excluir_clientes_ids IDs de clientes genéricos (ventas de mostrador por sucursal) que se
                          excluyen siempre en los análisis de clientes.
+    columnas_fecha       {esquema.tabla: columna de fecha} para ordenar los ejemplos de describir_tabla.
+                         Una tabla que no figura no tiene columna de fecha.
     auditor              auditor(sql=, parametros=, duracion_ms=, filas=, error=) por cada consulta
                          ejecutada o rechazada. Lo fija el loop de la app por herramienta; None en MCP.
     """
@@ -44,6 +46,7 @@ class ContextoPerfil:
     max_filas: int = 500
     timeout_sql_seg: int = 60
     excluir_clientes_ids: tuple[int, ...] = ()
+    columnas_fecha: dict[str, str] | None = None
     auditor: Callable[..., None] | None = field(default=None, compare=False, repr=False)
 
     def auditar(self, **registro) -> None:
@@ -61,6 +64,9 @@ class ContextoPerfil:
             normal = {validar_nombre_tabla(t): (frozenset(c.lower() for c in cols) if cols is not None else None)
                       for t, cols in self.tablas_permitidas.items()}
             object.__setattr__(self, "tablas_permitidas", normal)
+        if self.columnas_fecha is not None:
+            object.__setattr__(self, "columnas_fecha",
+                               {validar_nombre_tabla(t): c.lower() for t, c in self.columnas_fecha.items()})
 
     @property
     def esquema(self) -> str:

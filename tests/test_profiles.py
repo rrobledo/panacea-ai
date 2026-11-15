@@ -86,7 +86,7 @@ def test_perfil_nuevo_sin_codigo(raiz):
     planta = c.usuario("planta@example.com ")
     assert [p.id for p in c.perfiles_de(planta)] == ["produccion"]
     assert c.puede_usar(planta, "produccion") and not c.puede_usar(planta, "ventas")
-    assert {p.id for p in c.perfiles_de(c.usuario("jefa@example.com"))} == {"ventas", "produccion"}
+    assert {p.id for p in c.perfiles_de(c.usuario("jefa@example.com"))} == set(c.perfiles)  # admin ve todos
     assert c.usuario("nadie@example.com") is None
     p = c.perfiles["produccion"]
     assert p.tablas_permitidas()["public.panacea_sales_v2"] == frozenset({"operation_date", "product_id",
@@ -96,8 +96,8 @@ def test_perfil_nuevo_sin_codigo(raiz):
 
 def test_usuario_con_perfil_inexistente(raiz):
     editar(raiz, "config/usuarios.yaml",
-           lambda d: d.update(usuarios=[{"email": "a@example.com", "perfiles": ["compras"]}]))
-    falla(raiz, "usuarios.yaml", "compras")
+           lambda d: d.update(usuarios=[{"email": "a@example.com", "perfiles": ["logistica"]}]))
+    falla(raiz, "usuarios.yaml", "logistica")
 
 
 def test_email_repetido(raiz):
@@ -121,3 +121,11 @@ def test_falta_credencial(monkeypatch):
     monkeypatch.setattr(profiles, "_engines", {})
     with pytest.raises(ErrorConfiguracion, match="DB_URL_VENTAS"):
         contexto_para(cargar_configuracion().perfiles["ventas"])
+
+
+@pytest.mark.parametrize("tabla", ["public.costos_cuentacorrienteproveedor", "public.costos_remitos",
+                                   "public.panacea_sales", "public.socios", "public.compras_compra_adjunto",
+                                   "public.auth_user", "app.mensajes"])
+def test_tabla_no_exponible(raiz, tabla):
+    editar(raiz, "config/perfiles/ventas.yaml", lambda d: d["base_datos"]["tablas"].append({"nombre": tabla}))
+    falla(raiz, "ventas.yaml", "base_datos.tablas", tabla, "no se puede exponer")

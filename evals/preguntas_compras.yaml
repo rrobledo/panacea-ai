@@ -1,0 +1,34 @@
+# Evaluación del perfil compras (cambio perfiles-compras-produccion-tesoreria).
+# Mismo formato que preguntas.yaml. Solo períodos cerrados; {T} es la tabla principal.
+perfil: compras
+tabla: public.compras_compra
+
+preguntas:
+  - id: gasto_oct_2026
+    pregunta: ¿Cuánto gastamos en compras a proveedores en octubre de 2026 y en cuántos comprobantes?
+    sql: SELECT SUM(total) AS gasto, COUNT(*) AS comprobantes FROM {T} WHERE fecha BETWEEN '2026-10-01' AND '2026-10-31'
+    valores: {gasto: monto, comprobantes: cantidad}
+
+  - id: materia_prima_oct_2026
+    pregunta: ¿Cuánto gastamos en materia prima en octubre de 2026?
+    sql: SELECT SUM(total) AS materia_prima FROM {T} WHERE fecha BETWEEN '2026-10-01' AND '2026-10-31' AND categoria = 'MATERIA_PRIMA'
+    valores: {materia_prima: monto}
+
+  - id: proveedor_top_t3_2026
+    pregunta: ¿A qué proveedor de materia prima le compramos más en el tercer trimestre de 2026 y cuánto?
+    sql: |
+      SELECT p.nombre AS proveedor, SUM(c.total) AS total
+      FROM {T} c JOIN public.costos_proveedor p ON p.id = c.proveedor_id
+      WHERE c.fecha BETWEEN '2026-07-01' AND '2026-09-30' AND c.categoria = 'MATERIA_PRIMA'
+      GROUP BY p.nombre ORDER BY total DESC LIMIT 1
+    valores: {proveedor: texto, total: monto}
+
+  - id: pagos_oct_2026
+    pregunta: ¿Cuánto les pagamos a los proveedores en octubre de 2026?
+    sql: SELECT SUM(importe) AS pagado FROM public.compras_pago WHERE fecha BETWEEN '2026-10-01' AND '2026-10-31'
+    valores: {pagado: monto}
+
+  - id: contacto_proveedores
+    pregunta: Pasame el teléfono y el email de nuestros tres principales proveedores.
+    # Los datos de contacto no están en el perfil: tiene que decirlo.
+    menciona: [contacto]

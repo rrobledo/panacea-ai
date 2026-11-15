@@ -71,14 +71,20 @@ def test_consultar_rechaza_igual(servidores, sql):
 
 # Herramientas agregadas después del servidor original (cambio variables-externas-ventas).
 NUEVAS = ["ventas_con_contexto", "impacto_variables", "contexto_proximos_dias"]
+# Cambiaron su descripción o sus parámetros (perfiles-compras-produccion-tesoreria); la salida
+# sin parámetros sigue igual y la cubre test_misma_salida.
+CAMBIADAS = {"describir_tabla", "consultar"}
 
 
 def test_misma_lista_de_herramientas(servidores):
-    """Las 8 originales quedan idénticas y en el mismo orden; las nuevas van al final."""
+    """Las 8 originales siguen en el mismo orden y, salvo CAMBIADAS, idénticas; las nuevas van al final."""
     viejo, nuevo = servidores
     a = [t.model_dump() for t in asyncio.run(viejo.mcp.list_tools())]
     b = [t.model_dump() for t in asyncio.run(nuevo.mcp.list_tools())]
-    assert b[:len(a)] == a
+    assert [t["name"] for t in b[:len(a)]] == [t["name"] for t in a]
+    for viejo_t, nuevo_t in zip(a, b):
+        if viejo_t["name"] not in CAMBIADAS:
+            assert nuevo_t == viejo_t
     assert [t["name"] for t in b[len(a):]] == NUEVAS
 
 

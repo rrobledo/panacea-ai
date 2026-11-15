@@ -1,0 +1,19 @@
+{
+  "generado": "2026-11-14T22:36:17",
+  "valores": {
+    "cobros_oct_2026": {
+      "efectivo": 11866197.56,
+      "tarjeta": 10739489.04
+    },
+    "anulados_oct_2026": {
+      "anulados": 5
+    },
+    "pagos_sep_2026": {
+      "pagado": 45460939.34,
+      "pagos": 95
+    },
+    "transferencias_oct_2026": {
+      "transferencias": 44317062.02
+    }
+  }
+}

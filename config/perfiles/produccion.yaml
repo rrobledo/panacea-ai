@@ -1,0 +1,73 @@
+id: produccion
+nombre: Analista de producción
+descripcion: Plan contra real, órdenes, desperdicio, stock, recetas y costo de materia prima
+modelo: claude-opus-5-5
+esfuerzo: medium
+prompt: prompts/produccion.md
+
+base_datos:
+  credencial_env: DB_URL_PRODUCCION     # rol agente_produccion_ro (sql/roles_perfiles_area.sql)
+  tablas:
+    - nombre: public.costos_programacion
+      descripcion: Plan y producción diaria por producto
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/costos_programacion.md
+    - nombre: public.costos_planificacion
+      descripcion: Plan mensual por producto
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/costos_planificacion.md
+    - nombre: public.ordenes_produccion
+      descripcion: Órdenes de producción (desde el 07/09/2026)
+      columna_fecha: fecha_fabricacion
+      diccionario: prompts/diccionarios/ordenes_produccion.md
+    - nombre: public.ordenes_produccion_producto_linea
+      descripcion: Productos de cada orden
+      diccionario: prompts/diccionarios/ordenes_produccion_producto_linea.md
+    - nombre: public.ordenes_produccion_insumo_linea
+      descripcion: Insumos de cada orden
+      diccionario: prompts/diccionarios/ordenes_produccion_insumo_linea.md
+    - nombre: public.productos_fabricados
+      descripcion: Lo fabricado y el desperdicio por orden
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/productos_fabricados.md
+    - nombre: public.stock_movimientos
+      descripcion: Movimientos de stock de insumos y productos
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/stock_movimientos.md
+    - nombre: public.procesos_proceso
+      descripcion: Recetas versionadas del grafo de procesos
+      diccionario: prompts/diccionarios/procesos_proceso.md
+    - nombre: public.procesos_proceso_linea
+      descripcion: Entradas y salidas de cada receta
+      diccionario: prompts/diccionarios/procesos_proceso_linea.md
+    - nombre: public.costos_productos
+      descripcion: Productos fabricados y semielaborados
+      diccionario: prompts/diccionarios/costos_productos.md
+    - nombre: public.costos_productosref
+      descripcion: Vínculo de cada producto con sus artículos del sistema de caja
+      diccionario: prompts/diccionarios/costos_productosref.md
+    - nombre: public.costos_costos
+      descripcion: Receta del motor viejo (insumos por lote)
+      diccionario: prompts/diccionarios/costos_costos.md
+    - nombre: public.costos_insumos
+      descripcion: Insumos con su precio de referencia
+      diccionario: prompts/diccionarios/costos_insumos.md
+    - nombre: public.costos_centro_trabajo
+      descripcion: Centros de trabajo con tarifa horaria
+      diccionario: prompts/diccionarios/costos_centro_trabajo.md
+    - nombre: public.articulos_final
+      descripcion: Vista de artículos activos con precio de venta
+      diccionario: prompts/diccionarios/articulos_final.md
+    - nombre: public.panacea_sales_v2
+      descripcion: Ventas por producto (sin datos de clientes)
+      columna_fecha: operation_date
+      columnas: [product_id, product, category, lugar_venta_id, lugar_venta, operation_date, operation_year, operation_month, count, subtotal]
+      diccionario: prompts/diccionarios/panacea_sales_v2_produccion.md
+
+herramientas: [describir_tabla, consultar, solicitar_aclaraciones, generar_artifact, editar_artifact]
+
+limites:
+  max_filas: 500
+  timeout_sql_seg: 60
+  max_herramientas_por_turno: 25
+  presupuesto_tokens_por_turno: 200000

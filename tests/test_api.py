@@ -88,7 +88,7 @@ def test_perfiles(entorno):
     c, _, _ = entorno
     assert [p["id"] for p in c.get("/api/profiles", headers=h("ana@example.com")).json()["perfiles"]] == ["ventas"]
     jefa = c.get("/api/profiles", headers=h("jefa@example.com")).json()
-    assert jefa["usuario"]["admin"] and {p["id"] for p in jefa["perfiles"]} == {"ventas", "produccion"}
+    assert jefa["usuario"]["admin"] and {p["id"] for p in jefa["perfiles"]} == {"ventas", "compras", "produccion", "tesoreria"}
 
 
 def test_perfil_no_asignado_no_invoca_al_modelo(entorno):

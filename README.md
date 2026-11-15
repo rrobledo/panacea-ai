@@ -87,17 +87,31 @@ en la app web.
 | `AUTH_BACKEND_URL` | Backend que hace el login con Google (por defecto `https://panacea-produccion-backend.vercel.app`) |
 | `APP_URL` | Opcional: URL pública de esta app, si la que ve Next no es la real |
 | `DB_URL_APP` | Base del esquema `app`, con el rol `agente_app` |
-| `DB_URL_<PERFIL>` | Una por perfil (ej. `DB_URL_VENTAS`), con el rol de solo lectura de ese perfil |
+| `DB_URL_<PERFIL>` | Una por perfil, con el rol de solo lectura de ese perfil: `DB_URL_VENTAS`, `DB_URL_COMPRAS`, `DB_URL_PRODUCCION`, `DB_URL_TESORERIA` |
 
 En Vercel/Neon usá el host con `-pooler` en las URL de la app. La conexión directa
 (`POSTGRES_URL_NON_POOLING`, rol dueño) queda solo para migraciones.
 
 ### Base de datos
-1. Roles por perfil y de la app: `sql/roles_perfiles.sql` (pendiente, tarea 2.4).
+1. Roles por perfil: `sql/usuario_solo_lectura.sql` (ventas) y `sql/roles_perfiles_area.sql` (compras,
+   producción y tesorería, con `GRANT` por columna en las tablas acotadas). Se corren a mano como
+   administrador, después de cambiar las contraseñas.
 2. Esquema de la app: `psql "$POSTGRES_URL_NON_POOLING" -f sql/app/001_esquema.sql`. El script es
    idempotente y da permisos a `agente_app` si ese rol ya existe.
 
 ### Perfiles y usuarios
+| Perfil | Para qué | Tablas |
+|---|---|---|
+| `ventas` | Ventas, tickets, clientes, canasta, proyecciones y variables externas | `panacea_sales_v2` |
+| `compras` | Gasto por categoría y proveedor, deuda y días de pago | Facturas, detalle, impuestos, pagos, aplicación de pagos, cuenta corriente, proveedores (sin contacto), insumos |
+| `produccion` | Plan contra real contra vendido, órdenes, merma, stock, recetas y costo de materia prima | Programación, planificación, órdenes y sus líneas, fabricados, stock, procesos, productos, recetas, insumos, centros de trabajo, `articulos_final`, `panacea_sales_v2` (sin clientes) |
+| `tesoreria` | Cobros por medio de pago (Villa Allende y Dietética), pagos, vencimientos y saldos | Pagos y medios, aplicación, facturas (importes y vencimientos), cuenta corriente, proveedores, `documentos` (solo cobro), `cajas` |
+
+Los perfiles de área usan `describir_tabla`, `consultar` y los reportes. Ningún perfil puede incluir
+tablas deprecadas o sensibles (`TABLAS_NO_EXPONIBLES` en `agent/profiles.py`): la configuración no
+carga. Para habilitar a alguien, sumá el perfil a su entrada en `config/usuarios.yaml` (y que exista
+su `DB_URL_<PERFIL>`).
+
 Un perfil se agrega sin tocar código:
 1. `config/perfiles/<id>.yaml` con el modelo, el esfuerzo, el prompt, las tablas (y, si hace falta, las
    columnas), las herramientas, las reglas y los límites. Usá `config/perfiles/ventas.yaml` de modelo.

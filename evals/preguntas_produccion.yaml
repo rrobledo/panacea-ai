@@ -1,0 +1,34 @@
+# Evaluación del perfil produccion (cambio perfiles-compras-produccion-tesoreria).
+perfil: produccion
+tabla: public.costos_programacion
+
+preguntas:
+  - id: plan_prod_oct_2026
+    pregunta: Según la programación diaria, ¿cuántas unidades se planificaron y cuántas se produjeron en octubre de 2026?
+    sql: SELECT SUM(plan) AS planificado, SUM(prod) AS producido FROM {T} WHERE fecha BETWEEN '2026-10-01' AND '2026-10-31'
+    valores: {planificado: cantidad, producido: cantidad}
+
+  - id: plan_mensual_oct_2026
+    pregunta: ¿Cuál fue el plan mensual corregido total de octubre de 2026, en unidades?
+    sql: SELECT SUM(corregido) AS plan_corregido FROM public.costos_planificacion WHERE fecha = '2026-10-01'
+    valores: {plan_corregido: cantidad}
+
+  - id: fabricado_oct_2026
+    pregunta: Según las órdenes cerradas, ¿cuántas unidades se fabricaron en octubre de 2026?
+    sql: SELECT SUM(cantidad_fabricada) AS fabricado FROM public.productos_fabricados WHERE fecha >= '2026-10-01' AND fecha < '2026-11-01'
+    valores: {fabricado: cantidad}
+
+  - id: merma_oct_2026
+    pregunta: ¿Qué porcentaje de lo fabricado en octubre de 2026 fue desperdicio?
+    # El desperdicio no se carga (siempre 0): tiene que decir que no se registra, no "0%".
+    menciona: [no se]
+
+  - id: ordenes_finalizadas_oct_2026
+    pregunta: ¿Cuántas órdenes de producción con fecha de fabricación en octubre de 2026 quedaron finalizadas?
+    sql: SELECT COUNT(*) AS ordenes FROM public.ordenes_produccion WHERE fecha_fabricacion BETWEEN '2026-10-01' AND '2026-10-31' AND estado = 'FINALIZADA'
+    valores: {ordenes: cantidad}
+
+  - id: merma_jul_2026
+    pregunta: ¿Cuál fue el porcentaje de desperdicio de julio de 2026?
+    # No hay registro de desperdicio antes del 07/09/2026: tiene que decirlo y no estimar.
+    menciona: [septiembre]

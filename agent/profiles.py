@@ -30,6 +30,25 @@ HERRAMIENTAS_VENTAS = {"perfil_datos", "resumen_ventas", "comparar_periodos", "c
 HERRAMIENTAS_EXTERNAS = {"ventas_con_contexto", "impacto_variables", "contexto_proximos_dias"}
 
 
+# Tablas que ningún perfil puede exponer (relevamiento del 14/11/2026 cruzado con
+# panacea-produccion-backend): deprecadas, con datos personales o credenciales, o binarias.
+TABLAS_NO_EXPONIBLES = frozenset(f"public.{t}" for t in (
+    # Deprecadas: reemplazadas o sin uso en el backend
+    "costos_cuentacorrienteproveedor", "costos_cuentacorrienteproveedorafect",
+    "costos_cuentacorrienteproveedordetalle", "costos_remitos", "costos_remitodetalles",
+    "costos_costs", "costos_costsdetails", "costos_supplies", "costos_products", "costos_compras",
+    "panacea_sales",
+    # Excluidas: datos personales, credenciales, contenido privado o archivos binarios
+    "socios", "users", "conversations", "perfiles_socio", "preguntas_por_socios", "lotes_perfiles",
+    "lote_perfil_items", "compras_compra_adjunto", "compras_pago_adjunto", "pedidos_remito_legacy",
+))
+PREFIJOS_NO_EXPONIBLES = ("public.auth_", "public.django_", "app.")
+
+
+def tabla_no_exponible(nombre: str) -> bool:
+    return nombre in TABLAS_NO_EXPONIBLES or nombre.startswith(PREFIJOS_NO_EXPONIBLES)
+
+
 class ErrorConfiguracion(Exception):
     pass
 
@@ -48,7 +67,11 @@ class Tabla(_Estricto):
     @field_validator("nombre")
     @classmethod
     def _nombre(cls, v):
-        return validar_nombre_tabla(v)
+        v = validar_nombre_tabla(v)
+        if tabla_no_exponible(v):
+            raise ValueError(f"la tabla {v} no se puede exponer en un perfil (deprecada o con datos "
+                             f"sensibles; ver TABLAS_NO_EXPONIBLES en agent/profiles.py)")
+        return v
 
 
 class BaseDatos(_Estricto):
@@ -274,4 +297,5 @@ def contexto_para(perfil: Perfil, engine: Engine | None = None) -> ContextoPerfi
         max_filas=perfil.limites.max_filas,
         timeout_sql_seg=perfil.limites.timeout_sql_seg,
         excluir_clientes_ids=tuple(perfil.reglas.excluir_clientes_en_analisis),
+        columnas_fecha={t.nombre: t.columna_fecha for t in perfil.base_datos.tablas if t.columna_fecha},
     )

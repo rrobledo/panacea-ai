@@ -1,0 +1,19 @@
+{
+  "generado": "2026-11-14T22:37:05",
+  "valores": {
+    "gasto_oct_2026": {
+      "gasto": 49090432.8182,
+      "comprobantes": 99
+    },
+    "materia_prima_oct_2026": {
+      "materia_prima": 19133490.7582
+    },
+    "proveedor_top_t3_2026": {
+      "proveedor": "Glutal S.A",
+      "total": 11069985.84
+    },
+    "pagos_oct_2026": {
+      "pagado": 44317062.02
+    }
+  }
+}

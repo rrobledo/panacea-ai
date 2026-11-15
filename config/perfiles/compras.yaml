@@ -1,0 +1,46 @@
+id: compras
+nombre: Analista de compras
+descripcion: Facturas de proveedores, gasto por categoría, deuda y pagos
+modelo: claude-opus-5-5
+esfuerzo: medium
+prompt: prompts/compras.md
+
+base_datos:
+  credencial_env: DB_URL_COMPRAS        # rol agente_compras_ro (sql/roles_perfiles_area.sql)
+  tablas:
+    - nombre: public.compras_compra
+      descripcion: Una fila por comprobante de proveedor
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/compras_compra.md
+    - nombre: public.compras_compra_detalle
+      descripcion: Líneas de cada comprobante
+      diccionario: prompts/diccionarios/compras_compra_detalle.md
+    - nombre: public.compras_compra_impuesto
+      descripcion: Desglose de impuestos (casi sin datos)
+      diccionario: prompts/diccionarios/compras_compra_impuesto.md
+    - nombre: public.compras_pago
+      descripcion: Pagos a proveedores
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/compras_pago.md
+    - nombre: public.compras_pago_aplicacion
+      descripcion: Qué comprobante cancela cada pago
+      diccionario: prompts/diccionarios/compras_pago_aplicacion.md
+    - nombre: public.compras_movimiento_cc
+      descripcion: Cuenta corriente con proveedores (debe y haber)
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/compras_movimiento_cc.md
+    - nombre: public.costos_proveedor
+      descripcion: Proveedores
+      columnas: [id, codigo, nombre, nombre_fantasia, cuit, condicion_iva, condicion_pago, estado, fecha_alta]
+      diccionario: prompts/diccionarios/costos_proveedor.md
+    - nombre: public.costos_insumos
+      descripcion: Insumos con su precio de referencia
+      diccionario: prompts/diccionarios/costos_insumos.md
+
+herramientas: [describir_tabla, consultar, solicitar_aclaraciones, generar_artifact, editar_artifact]
+
+limites:
+  max_filas: 500
+  timeout_sql_seg: 60
+  max_herramientas_por_turno: 25
+  presupuesto_tokens_por_turno: 200000

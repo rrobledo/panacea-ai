@@ -6,8 +6,11 @@ Evaluación del agente con preguntas reales (tarea 9.2).
   python evals/evaluar.py verificar --guardar  escribe esperado.json (revisarlo a mano)
   python evals/evaluar.py correr [--solo a,b]  corre el agente con la API real y califica.
                                                CUESTA PLATA: ~US$ 0,10–0,30 por pregunta con Opus 5.5.
+  --perfil compras|produccion|tesoreria        cualquiera de los comandos, para otro perfil: usa
+                                               preguntas_<perfil>.yaml y esperado_<perfil>.json.
 
-Base: DB_URL_VENTAS (o DATABASE_URL), solo lectura. API: ANTHROPIC_API_KEY.
+Base: la credencial del perfil (DB_URL_VENTAS, DB_URL_COMPRAS…) o DATABASE_URL, solo lectura.
+API: ANTHROPIC_API_KEY.
 Correr antes y después de cambiar el prompt, el modelo o el esfuerzo de un perfil.
 """
 
@@ -29,6 +32,13 @@ import yaml  # noqa: E402
 DIR = Path(__file__).resolve().parent
 PREGUNTAS = DIR / "preguntas.yaml"
 ESPERADO = DIR / "esperado.json"
+
+
+def rutas(perfil: str = "ventas") -> tuple[Path, Path]:
+    """Preguntas y respuestas esperadas de un perfil. Ventas conserva los nombres originales."""
+    if perfil == "ventas":
+        return PREGUNTAS, ESPERADO
+    return DIR / f"preguntas_{perfil}.yaml", DIR / f"esperado_{perfil}.json"
 TOLERANCIA = {"monto": ("rel", 0.01), "cantidad": ("rel", 0.005), "decimal": ("abs", 0.05),
               "porcentaje": ("abs", 0.6)}
 
@@ -99,16 +109,17 @@ def calificar(pregunta: dict, esperado: dict, respuesta: str) -> dict:
 
 
 # ---------------------------------------------------------------- verificar
-def _ctx_db():
+def _ctx_db(credencial: str = "DB_URL_VENTAS", tabla: str = "public.panacea_sales_v2"):
+    """El SQL de verificación se escribe aparte del agente y lee la base sin las restricciones del perfil."""
     from agent.contexto import ContextoPerfil
     from agent.profiles import engine_para
-    nombre = "DB_URL_VENTAS" if os.environ.get("DB_URL_VENTAS") else "DATABASE_URL"
-    return ContextoPerfil(engine=engine_para(nombre), tabla="public.panacea_sales_v2", timeout_sql_seg=120)
+    nombre = credencial if os.environ.get(credencial) else "DATABASE_URL"
+    return ContextoPerfil(engine=engine_para(nombre), tabla=tabla, timeout_sql_seg=120)
 
 
 def calcular(datos: dict, ctx=None) -> dict:
     from agent.tools.base import ejecutar
-    ctx = ctx or _ctx_db()
+    ctx = ctx or _ctx_db(f"DB_URL_{datos['perfil'].upper()}", datos["tabla"])
     valores = {}
     for p in datos["preguntas"]:
         if not p.get("sql"):
@@ -119,15 +130,16 @@ def calcular(datos: dict, ctx=None) -> dict:
     return valores
 
 
-def verificar(guardar: bool) -> int:
-    datos = cargar()
+def verificar(guardar: bool, perfil: str = "ventas") -> int:
+    preguntas, esperado = rutas(perfil)
+    datos = cargar(preguntas)
     valores = calcular(datos)
     if guardar:
-        ESPERADO.write_text(json.dumps({"generado": datetime.now().isoformat(timespec="seconds"),
+        esperado.write_text(json.dumps({"generado": datetime.now().isoformat(timespec="seconds"),
                                         "valores": valores}, ensure_ascii=False, indent=2) + "\n")
-        print(f"Guardado {ESPERADO} con {len(valores)} preguntas. Revisá los valores antes de usarlos.")
+        print(f"Guardado {esperado} con {len(valores)} preguntas. Revisá los valores antes de usarlos.")
         return 0
-    guardado = json.loads(ESPERADO.read_text())["valores"]
+    guardado = json.loads(esperado.read_text())["valores"]
     distintos = [(pid, col, guardado.get(pid, {}).get(col), v)
                  for pid, cols in valores.items() for col, v in cols.items()
                  if guardado.get(pid, {}).get(col) != v]
@@ -158,13 +170,15 @@ def correr_pregunta(agente, almacen, pregunta: dict) -> dict:
             "costo_usd": uso.get("costo_usd", 0), "segundos": round(time.monotonic() - inicio, 1)}
 
 
-def correr(solo: list[str] | None, cliente=None, ctx=None, salida: Path | None = None) -> dict:
+def correr(solo: list[str] | None, cliente=None, ctx=None, salida: Path | None = None,
+           perfil_id: str = "ventas") -> dict:
     from agent.almacen import AlmacenMemoria
     from agent.loop import Agente
     from agent.profiles import cargar_configuracion, contexto_para
 
-    datos = cargar()
-    esperado = json.loads(ESPERADO.read_text())["valores"]
+    ruta_preguntas, ruta_esperado = rutas(perfil_id)
+    datos = cargar(ruta_preguntas)
+    esperado = json.loads(ruta_esperado.read_text())["valores"]
     config = cargar_configuracion()
     perfil = config.perfiles[datos["perfil"]]
     if cliente is None:
@@ -201,13 +215,15 @@ def main(argv=None) -> int:
     c.add_argument("--solo", help="ids separados por coma")
     c.add_argument("--salida", type=Path,
                    default=DIR / "resultados" / f"{datetime.now():%Y-%m-%d_%H%M}.json")
+    for sp in (v, c):
+        sp.add_argument("--perfil", default="ventas")
     a = ap.parse_args(argv)
     if a.comando == "verificar":
-        return verificar(a.guardar)
+        return verificar(a.guardar, a.perfil)
     if not os.environ.get("ANTHROPIC_API_KEY"):
         print("Falta ANTHROPIC_API_KEY")
         return 2
-    r = correr(a.solo.split(",") if a.solo else None, salida=a.salida)
+    r = correr(a.solo.split(",") if a.solo else None, salida=a.salida, perfil_id=a.perfil)
     return 0 if r["aciertos"] == r["total"] else 1
 
 

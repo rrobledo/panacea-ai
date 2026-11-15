@@ -1,0 +1,18 @@
+{
+  "generado": "2026-11-14T22:37:13",
+  "valores": {
+    "plan_prod_oct_2026": {
+      "planificado": 14232,
+      "producido": 11484
+    },
+    "plan_mensual_oct_2026": {
+      "plan_corregido": 10279
+    },
+    "fabricado_oct_2026": {
+      "fabricado": 9809.0
+    },
+    "ordenes_finalizadas_oct_2026": {
+      "ordenes": 209
+    }
+  }
+}

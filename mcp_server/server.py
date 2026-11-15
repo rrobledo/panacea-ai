@@ -47,6 +47,7 @@ def crear_contexto() -> ContextoPerfil:
                                if tablas_env else None),
             max_filas=int(os.environ.get("MAX_FILAS", "500")),
             timeout_sql_seg=int(os.environ.get("TIMEOUT_SEG", "60")),
+            columnas_fecha={os.environ.get("SALES_TABLE", "public.panacea_sales_v2"): "operation_date"},
         )
     except ValueError as e:
         raise SystemExit(f"SALES_TABLE o TABLAS_PERMITIDAS mal formadas: {e}")

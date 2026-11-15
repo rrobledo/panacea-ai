@@ -62,3 +62,15 @@ def test_respuestas_esperadas_vigentes():
     if not os.environ.get("DATABASE_URL"):
         pytest.skip("Sin DATABASE_URL")
     assert evaluar.verificar(guardar=False) == 0
+
+
+@pytest.mark.parametrize("perfil", ["compras", "produccion", "tesoreria"])
+def test_preguntas_de_area_bien_formadas(perfil):
+    preguntas, esperado = evaluar.rutas(perfil)
+    datos = evaluar.cargar(preguntas)
+    assert datos["perfil"] == perfil and len(datos["preguntas"]) >= 5
+    guardado = json.loads(esperado.read_text())["valores"]
+    con_sql = [p for p in datos["preguntas"] if p.get("sql")]
+    assert len(con_sql) >= 4 and any(p.get("menciona") for p in datos["preguntas"])
+    for p in con_sql:
+        assert set(guardado[p["id"]]) == set(p["valores"]), p["id"]

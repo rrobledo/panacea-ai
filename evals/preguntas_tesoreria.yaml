@@ -1,0 +1,35 @@
+# Evaluación del perfil tesoreria (cambio perfiles-compras-produccion-tesoreria).
+perfil: tesoreria
+tabla: public.compras_pago
+
+preguntas:
+  - id: cobros_oct_2026
+    pregunta: ¿Cuánto se cobró en efectivo y cuánto con tarjeta en octubre de 2026 en Villa Allende y la Dietética?
+    sql: |
+      SELECT SUM(pagoefectivoneto) AS efectivo, SUM(pagotarjeta) AS tarjeta FROM public.documentos
+      WHERE fechadocumento >= '2026-10-01' AND fechadocumento < '2026-11-01' AND docanulado = 0
+    valores: {efectivo: monto, tarjeta: monto}
+
+  - id: anulados_oct_2026
+    pregunta: ¿Cuántos comprobantes de caja se anularon en octubre de 2026?
+    sql: |
+      SELECT COUNT(*) AS anulados FROM public.documentos
+      WHERE fechadocumento >= '2026-10-01' AND fechadocumento < '2026-11-01' AND docanulado = 1
+    valores: {anulados: cantidad}
+
+  - id: pagos_sep_2026
+    pregunta: ¿Cuánto se pagó en total a proveedores en septiembre de 2026 y en cuántos pagos?
+    sql: SELECT SUM(importe) AS pagado, COUNT(*) AS pagos FROM {T} WHERE fecha BETWEEN '2026-09-01' AND '2026-09-30'
+    valores: {pagado: monto, pagos: cantidad}
+
+  - id: transferencias_oct_2026
+    pregunta: ¿Cuánto se pagó a proveedores por transferencia en octubre de 2026?
+    sql: |
+      SELECT SUM(m.importe) AS transferencias FROM public.compras_pago_medio m JOIN {T} p ON p.id = m.pago_id
+      WHERE p.fecha BETWEEN '2026-10-01' AND '2026-10-31' AND m.tipo = 'TRANSFERENCIA'
+    valores: {transferencias: monto}
+
+  - id: arqueo_ayer
+    pregunta: Dame el arqueo de caja de ayer.
+    # Los arqueos no se sincronizan desde 2024: tiene que decirlo y ofrecer lo cobrado según documentos.
+    menciona: [2024]
