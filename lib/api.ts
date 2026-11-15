@@ -100,6 +100,11 @@ export async function obtener<T>(ruta: string): Promise<T> {
   return (await pedir(ruta)).json() as Promise<T>;
 }
 
+/** Borra una conversación propia (o cualquiera, si sos administrador). Los reportes quedan en la galería. */
+export async function eliminarConversacion(id: string): Promise<void> {
+  await pedir(`/api/conversaciones/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
 /** POST que responde con SSE (chat y aclaraciones). */
 export function abrirTurno(ruta: "/api/chat" | "/api/clarify", cuerpo: unknown, signal: AbortSignal) {
   return pedir(ruta, { method: "POST", body: JSON.stringify(cuerpo), signal });
@@ -117,4 +122,7 @@ export const NOMBRES_HERRAMIENTAS: Record<string, string> = {
   solicitar_aclaraciones: "Aclaraciones",
   generar_artifact: "Generar reporte",
   editar_artifact: "Editar reporte",
+  ventas_con_contexto: "Ventas con variables externas",
+  impacto_variables: "Impacto de variables externas",
+  contexto_proximos_dias: "Próximos días",
 };

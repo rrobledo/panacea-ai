@@ -157,6 +157,10 @@ class Almacen(Protocol):
     def tomar_turno(self, conv_id: str) -> None: ...
     def latido(self, conv_id: str) -> None: ...
     def soltar_turno(self, conv_id: str, estado: str = "lista", tool_use_pendiente: dict | None = None) -> None: ...
+    def eliminar_conversacion(self, conv_id: str) -> None:
+        """Borra la conversación con sus mensajes, pasos y briefs. Los reportes quedan (sin conversación)
+        y la auditoría también. Lanza ConversacionOcupada si tiene un turno en curso."""
+        ...
     # briefs
     def crear_brief(self, conv_id: str, tool_use_id: str, contenido: dict, respuestas: dict,
                     estado: str = "aprobado") -> Brief: ...
@@ -251,6 +255,21 @@ class AlmacenMemoria:
             d = self._datos[conv_id]
             d.conv = replace(d.conv, estado=estado, tool_use_pendiente=tool_use_pendiente, actualizada=_ahora())
             d.latido = None
+
+    def eliminar_conversacion(self, conv_id):
+        with self._lock:
+            d = self._datos.get(conv_id)
+            if d is None:
+                return
+            if d.conv.estado == "en_curso" and d.latido and _ahora() - d.latido < LEASE:
+                raise ConversacionOcupada(conv_id)
+            del self._datos[conv_id]
+            borrados = {k for k, b in self._briefs.items() if b.conversacion_id == conv_id}
+            self._briefs = {k: b for k, b in self._briefs.items() if k not in borrados}
+            self._artifacts = {
+                k: (replace(a, conversacion_id=None if a.conversacion_id == conv_id else a.conversacion_id,
+                            brief_id=None if a.brief_id in borrados else a.brief_id))
+                for k, a in self._artifacts.items()}
 
 
     # ------------------------------------------------ briefs y artifacts
@@ -445,6 +464,25 @@ class AlmacenPostgres:
                 "latido = NULL, actualizada = now() WHERE id = :id"),
                 {"id": conv_id, "e": estado,
                  "t": json.dumps(tool_use_pendiente) if tool_use_pendiente is not None else None})
+
+    def eliminar_conversacion(self, conv_id):
+        if not _es_uuid(conv_id):
+            return
+        # Todo en una transacción, con la fila bloqueada: nadie toma el turno entre el control y el borrado.
+        # mensajes, pasos y briefs caen por ON DELETE CASCADE. Los reportes quedan con conversacion_id NULL
+        # (ON DELETE SET NULL); su brief_id se limpia antes porque esa FK no tiene ON DELETE.
+        with self.engine.begin() as c:
+            fila = c.execute(text(
+                "SELECT estado = 'en_curso' AND latido IS NOT NULL AND latido >= now() - make_interval(secs => :s) "
+                "FROM app.conversaciones WHERE id = :id FOR UPDATE"),
+                {"id": conv_id, "s": LEASE.total_seconds()}).first()
+            if fila is None:
+                return
+            if fila[0]:
+                raise ConversacionOcupada(conv_id)
+            c.execute(text("UPDATE app.artifacts SET brief_id = NULL WHERE brief_id IN "
+                           "(SELECT id FROM app.briefs WHERE conversacion_id = :id)"), {"id": conv_id})
+            c.execute(text("DELETE FROM app.conversaciones WHERE id = :id"), {"id": conv_id})
 
     # ------------------------------------------------ briefs y artifacts
     def crear_brief(self, conv_id, tool_use_id, contenido, respuestas, estado="aprobado"):

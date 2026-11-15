@@ -88,7 +88,7 @@ def test_perfiles(entorno):
     c, _, _ = entorno
     assert [p["id"] for p in c.get("/api/profiles", headers=h("ana@example.com")).json()["perfiles"]] == ["ventas"]
     jefa = c.get("/api/profiles", headers=h("jefa@example.com")).json()
-    assert jefa["usuario"]["admin"] and {p["id"] for p in jefa["perfiles"]} == {"ventas", "compras", "produccion", "tesoreria"}
+    assert jefa["usuario"]["admin"] and {p["id"] for p in jefa["perfiles"]} == {"ventas", "compras", "produccion", "tesoreria", "gerencia"}
 
 
 def test_perfil_no_asignado_no_invoca_al_modelo(entorno):
@@ -118,6 +118,27 @@ def test_chat_completo_y_historial(entorno):
     cliente.guion.append(mensaje(texto("Sí.")))
     r2 = c.post("/api/chat", headers=h("ana@example.com"), json={"conversacion_id": cid, "mensaje": "¿Seguro?"})
     assert eventos_sse(r2)[-1]["tipo"] == "fin" and len(cliente.llamadas[-1]["messages"]) == 5
+
+
+def test_eliminar_conversacion(entorno):
+    c, srv, _ = entorno
+    propia = srv.almacen.crear_conversacion("ana@example.com", "ventas", "mía").id
+    ajena = srv.almacen.crear_conversacion("planta@example.com", "produccion", "de otro").id
+    assert c.delete(f"/api/conversaciones/{ajena}", headers=h("ana@example.com")).status_code == 404
+    assert srv.almacen.conversacion(ajena) is not None
+    assert c.delete(f"/api/conversaciones/{propia}", headers=h("ana@example.com")).status_code == 204
+    assert c.get(f"/api/conversaciones/{propia}", headers=h("ana@example.com")).status_code == 404
+    assert c.get("/api/conversaciones", headers=h("ana@example.com")).json()["conversaciones"] == []
+    # Un administrador puede borrar la de otro usuario.
+    assert c.delete(f"/api/conversaciones/{ajena}", headers=h("jefa@example.com")).status_code == 204
+
+
+def test_no_se_elimina_con_respuesta_en_curso(entorno):
+    c, srv, _ = entorno
+    cid = srv.almacen.crear_conversacion("ana@example.com", "ventas", "x").id
+    srv.almacen.tomar_turno(cid)
+    r = c.delete(f"/api/conversaciones/{cid}", headers=h("ana@example.com"))
+    assert r.status_code == 409 and "en curso" in r.json()["detail"]
 
 
 def test_conversacion_ajena(entorno):

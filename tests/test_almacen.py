@@ -57,3 +57,33 @@ def test_migracion_idempotente(url_postgres):
     with engine.begin() as c:
         c.exec_driver_sql((RAIZ / "sql/app/001_esquema.sql").read_text())
         assert c.execute(text("SELECT count(*) FROM app.migraciones")).scalar() == 1
+
+
+def test_eliminar_conversacion(almacen):
+    cid = almacen.crear_conversacion("ana@example.com", "ventas", "a borrar").id
+    otra = almacen.crear_conversacion("ana@example.com", "ventas", "queda").id
+    almacen.agregar_mensaje(cid, "user", [{"type": "text", "text": "hola"}])
+    almacen.guardar_paso(cid, Paso("t", "consultar", {"sql": "SELECT 1"}, "uno", False, 5))
+    brief = almacen.crear_brief(cid, "tu1", {"titulo": "x"}, {})
+    art = almacen.crear_artifact(titulo="Reporte", tipo="reporte", perfil="ventas", autor="ana@example.com",
+                                 conversacion_id=cid, brief_id=brief.id, html="<p>x</p>", contenido={},
+                                 datos_fuente=[], tool_use_id="tu2")
+    almacen.eliminar_conversacion(cid)
+    assert almacen.conversacion(cid) is None
+    assert [c.id for c in almacen.conversaciones_de("ana@example.com")] == [otra]
+    assert almacen.brief(brief.id) is None
+    reporte = almacen.artifact(art.id)
+    assert reporte is not None and reporte.conversacion_id is None  # el reporte sigue en la galería
+    assert reporte.brief_id is None and almacen.version(art.id).html == "<p>x</p>"
+    almacen.eliminar_conversacion(cid)  # borrar dos veces no falla
+    almacen.eliminar_conversacion("no-es-uuid")
+
+
+def test_no_se_elimina_con_turno_en_curso(almacen):
+    cid = almacen.crear_conversacion("ana@example.com", "ventas", "x").id
+    almacen.tomar_turno(cid)
+    with pytest.raises(ConversacionOcupada):
+        almacen.eliminar_conversacion(cid)
+    almacen.soltar_turno(cid)
+    almacen.eliminar_conversacion(cid)
+    assert almacen.conversacion(cid) is None

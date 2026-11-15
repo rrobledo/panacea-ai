@@ -129,6 +129,17 @@ def _conversacion_visible(s: Sesion, conv_id: str):
     return c
 
 
+@app.delete("/api/conversaciones/{conv_id}", status_code=204)
+def eliminar_conversacion(conv_id: str, s: Sesion = Depends(sesion)):
+    """La borra su dueño (o un administrador). Los reportes generados en ella siguen en la galería."""
+    _conversacion_visible(s, conv_id)
+    try:
+        s.srv.almacen.eliminar_conversacion(conv_id)
+    except ConversacionOcupada:
+        raise HTTPException(409, "La conversación tiene una respuesta en curso. Esperá a que termine o detenela.")
+    log.info("conversación %s eliminada por %s", conv_id, s.usuario.email)
+
+
 def _items(mensajes: list[dict], pasos: dict) -> list[dict]:
     """Historial de la API → elementos para mostrar: mensajes del usuario, del agente y pasos."""
     items = []

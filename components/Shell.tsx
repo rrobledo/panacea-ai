@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, MessageSquarePlus, ShieldX, X } from "lucide-react";
+import { LogOut, Menu, MessageSquarePlus, ShieldX, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { salir } from "@/app/acciones";
 import { Contexto, type ContextoApp } from "@/components/AppContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { ErrorApi, obtener, type Conversacion, type DatosUsuario } from "@/lib/api";
+import { ErrorApi, eliminarConversacion, obtener, type Conversacion, type DatosUsuario } from "@/lib/api";
 
 const CLAVE_PERFIL = "panacea.perfil";
 
@@ -47,6 +47,71 @@ function BotonSalir({ compacto = false }: { compacto?: boolean }) {
   );
 }
 
+type EstadoBorrado = { id: string; borrando: boolean; error: string | null };
+
+function FilaConversacion({
+  c,
+  activa,
+  detalle,
+  borrado,
+  onPedirBorrar,
+  onCancelar,
+  onConfirmar,
+}: {
+  c: Conversacion;
+  activa: boolean;
+  detalle: React.ReactNode;
+  borrado: EstadoBorrado | null;
+  onPedirBorrar: () => void;
+  onCancelar: () => void;
+  onConfirmar: () => void;
+}) {
+  if (borrado) {
+    return (
+      <div className="rounded-lg border border-bad/40 bg-surface-2 px-3 py-2 grid gap-2" role="group" aria-label={`Eliminar ${c.titulo || "conversación"}`}>
+        <p className="text-sm">
+          ¿Eliminar <span className="font-medium">{c.titulo || "Sin título"}</span>? Los reportes que generó quedan en la galería.
+        </p>
+        {borrado.error && <p className="text-xs text-bad">{borrado.error}</p>}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onConfirmar}
+            disabled={borrado.borrando}
+            className="rounded-md bg-bad px-3 py-1 text-sm font-medium text-bg disabled:opacity-60"
+          >
+            {borrado.borrando ? "Eliminando…" : "Eliminar"}
+          </button>
+          <button type="button" onClick={onCancelar} disabled={borrado.borrando} className="rounded-md border border-line px-3 py-1 text-sm hover:border-accent">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="group relative">
+      <Link
+        href={`/chat/${c.id}`}
+        aria-current={activa ? "page" : undefined}
+        className={`block rounded-lg px-3 py-2 pr-10 ${activa ? "bg-accent-soft" : "hover:bg-surface-2"}`}
+      >
+        <span className="block truncate text-sm">{c.titulo || "Sin título"}</span>
+        {detalle}
+      </Link>
+      <button
+        type="button"
+        onClick={onPedirBorrar}
+        aria-label={`Eliminar ${c.titulo || "conversación"}`}
+        title="Eliminar conversación"
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 grid place-items-center size-8 rounded-md text-muted hover:bg-surface hover:text-bad focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100"
+      >
+        <Trash2 className="size-4" aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
 function Pantalla({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <main className="min-h-full grid place-items-center px-4 py-10">
@@ -68,6 +133,7 @@ export function Shell({ email, children }: { email: string; children: React.Reac
   const [perfilId, setPerfilId] = useState<string | null>(null);
   const [conversaciones, setConversaciones] = useState<Conversacion[] | null>(null);
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [borrado, setBorrado] = useState<EstadoBorrado | null>(null);
 
   useEffect(() => {
     obtener<DatosUsuario>("/api/profiles")
@@ -90,6 +156,24 @@ export function Shell({ email, children }: { email: string; children: React.Reac
   }, [datos, refrescarConversaciones]);
 
   useEffect(() => setMenuAbierto(false), [ruta]);
+
+  const confirmarBorrado = useCallback(
+    async (id: string) => {
+      setBorrado({ id, borrando: true, error: null });
+      try {
+        await eliminarConversacion(id);
+        setBorrado(null);
+        setConversaciones((cs) => cs?.filter((c) => c.id !== id) ?? cs);
+        // La URL puede haber cambiado sin recargar (conversación nueva): se mira la real.
+        if (window.location.pathname === `/chat/${id}`) router.push(`/chat?nueva=${Date.now()}`);
+        refrescarConversaciones();
+      } catch (e) {
+        const mensaje = e instanceof ErrorApi ? e.message : "No se pudo eliminar. Probá de nuevo.";
+        setBorrado({ id, borrando: false, error: mensaje });
+      }
+    },
+    [router, refrescarConversaciones],
+  );
 
   const elegirPerfil = useCallback((id: string) => {
     setPerfilId(id);
@@ -215,18 +299,21 @@ export function Shell({ email, children }: { email: string; children: React.Reac
                     const activa = ruta === `/chat/${c.id}`;
                     return (
                       <li key={c.id}>
-                        <Link
-                          href={`/chat/${c.id}`}
-                          aria-current={activa ? "page" : undefined}
-                          className={`block rounded-lg px-3 py-2 ${activa ? "bg-accent-soft" : "hover:bg-surface-2"}`}
-                        >
-                          <span className="block truncate text-sm">{c.titulo || "Sin título"}</span>
-                          <span className="flex gap-2 text-xs text-muted">
-                            <span>{fechaCorta(c.actualizada)}</span>
-                            {multiplesPerfiles && <span className="truncate">· {nombrePerfil(c.perfil)}</span>}
-                            {c.estado === "esperando_aclaracion" && <span className="text-warn">· espera tu respuesta</span>}
-                          </span>
-                        </Link>
+                        <FilaConversacion
+                          c={c}
+                          activa={activa}
+                          borrado={borrado?.id === c.id ? borrado : null}
+                          onPedirBorrar={() => setBorrado({ id: c.id, borrando: false, error: null })}
+                          onCancelar={() => setBorrado(null)}
+                          onConfirmar={() => void confirmarBorrado(c.id)}
+                          detalle={
+                            <span className="flex gap-2 text-xs text-muted">
+                              <span>{fechaCorta(c.actualizada)}</span>
+                              {multiplesPerfiles && <span className="truncate">· {nombrePerfil(c.perfil)}</span>}
+                              {c.estado === "esperando_aclaracion" && <span className="text-warn">· espera tu respuesta</span>}
+                            </span>
+                          }
+                        />
                       </li>
                     );
                   })}

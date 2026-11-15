@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useApp } from "@/components/AppContext";
 import { ClarifyCard } from "@/components/ClarifyCard";
+import { BotonDictado, useDictado } from "@/components/Dictado";
 import { Markdown } from "@/components/Markdown";
 import { ArtifactCard, Nota, Paso } from "@/components/Tarjetas";
 import { ErrorApi, abrirTurno, obtener, type DetalleConversacion, type Item } from "@/lib/api";
@@ -34,6 +35,7 @@ export function Chat({ conversacionId }: { conversacionId?: string }) {
   const fondo = useRef<HTMLDivElement>(null);
   const pegadoAlFondo = useRef(true);
   const scroller = useRef<HTMLDivElement>(null);
+  const dictado = useDictado(texto, setTexto);
 
   // Historial de una conversación existente.
   useEffect(() => {
@@ -102,6 +104,7 @@ export function Chat({ conversacionId }: { conversacionId?: string }) {
 
   function enviar(mensaje: string | null) {
     if (enCurso) return;
+    dictado.detener();
     const limpio = mensaje?.trim() || null;
     if (!convId && !limpio) return;
     setItems((its) => {
@@ -234,9 +237,23 @@ export function Chat({ conversacionId }: { conversacionId?: string }) {
             }}
             rows={1}
             maxLength={20000}
-            placeholder={pendiente ? "Escribí un ajuste, o respondé en la tarjeta…" : "Preguntá sobre ventas, clientes o pedí un reporte…"}
+            placeholder={
+              dictado.escuchando
+                ? "Escuchando… hablá y después revisá el texto antes de enviar"
+                : pendiente
+                  ? "Escribí un ajuste, o respondé en la tarjeta…"
+                  : "Preguntá sobre ventas, clientes o pedí un reporte…"
+            }
             className="flex-1 resize-none bg-transparent px-2 py-1.5 outline-none focus-visible:outline-none max-h-48 field-sizing-content"
           />
+          {dictado.soportado && (
+            <BotonDictado
+              escuchando={dictado.escuchando}
+              deshabilitado={enCurso}
+              onEmpezar={dictado.empezar}
+              onDetener={dictado.detener}
+            />
+          )}
           {enCurso ? (
             <button
               type="button"
@@ -259,9 +276,17 @@ export function Chat({ conversacionId }: { conversacionId?: string }) {
             </button>
           )}
         </div>
-        <p className="mx-auto max-w-3xl mt-1.5 text-xs text-muted px-1">
-          Enter para enviar, Shift+Enter para una línea nueva. El agente puede equivocarse: verificá los números importantes.
-        </p>
+        {dictado.error ? (
+          <p className="mx-auto max-w-3xl mt-1.5 text-xs text-bad px-1" role="alert">
+            {dictado.error}
+          </p>
+        ) : (
+          <p className="mx-auto max-w-3xl mt-1.5 text-xs text-muted px-1" aria-live="polite">
+            {dictado.escuchando
+              ? "Dictando: tocá el micrófono para terminar. Podés corregir el texto antes de enviarlo."
+              : `Enter para enviar, Shift+Enter para una línea nueva${dictado.soportado ? ", o el micrófono para dictar" : ""}. El agente puede equivocarse: verificá los números importantes.`}
+          </p>
+        )}
       </form>
     </div>
   );
