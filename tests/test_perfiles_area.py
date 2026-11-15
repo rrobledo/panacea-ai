@@ -83,12 +83,29 @@ def test_dentro_del_perfil(config, area, sql):
     assert guard(config, area, sql)
 
 
+def test_gerencia_es_la_union_de_los_cuatro_perfiles(config):
+    """Mismas tablas que ventas, compras, producción y tesorería, con la versión más amplia de cada una
+    (que coincide con la acotada cuando todos la acotan igual), y todas las herramientas de ventas."""
+    g = config.perfiles["gerencia"]
+    union: dict = {}
+    for pid in ("ventas", *AREAS):
+        for nombre, cols in config.perfiles[pid].tablas_permitidas().items():
+            union[nombre] = None if (cols is None or union.get(nombre, frozenset()) is None) else cols | union.get(nombre, frozenset())
+    assert g.tablas_permitidas() == union
+    assert g.tabla_principal == "public.panacea_sales_v2" and g.base_datos.tablas[0].columnas is None
+    assert g.herramientas == VENTAS_HERRAMIENTAS
+    assert g.reglas.excluir_clientes_en_analisis == [999, 0, 888, 777]
+    assert g.base_datos.credencial_env == "DB_URL_GERENCIA"
+    acotadas = g.tablas_permitidas()
+    assert "telefono" not in acotadas["public.costos_proveedor"] and "idcliente" not in acotadas["public.documentos"]
+
+
 def test_script_de_roles_coincide_con_los_perfiles(config):
     """sql/roles_perfiles_area.sql otorga exactamente las tablas y columnas de cada perfil."""
     import re
     from tests.conftest import RAIZ
     sql = (RAIZ / "sql/roles_perfiles_area.sql").read_text()
-    for area in AREAS:
+    for area in (*AREAS, "gerencia"):
         rol = f"agente_{area}_ro"
         otorgado = {}
         for cols, tabla in re.findall(rf"GRANT SELECT (?:\(([^)]*)\) )?ON (public\.\w+) TO {rol};", sql):

@@ -1,10 +1,10 @@
 -- Roles de solo lectura de los perfiles de área (cambio perfiles-compras-produccion-tesoreria).
--- Generado desde config/perfiles/{compras,produccion,tesoreria}.yaml: si cambian las tablas o
+-- Generado desde config/perfiles/{compras,produccion,tesoreria,gerencia}.yaml: si cambian las tablas o
 -- columnas de un perfil, actualizá este archivo (tests/test_perfiles_area.py lo controla).
 --
 -- Ejecutar como administrador en la base real. Antes, cambiá las contraseñas y reemplazá
 -- "panacea" por el nombre de tu base. Después, cargá en Vercel (y en .env.local) las variables
--- DB_URL_COMPRAS, DB_URL_PRODUCCION y DB_URL_TESORERIA con cada usuario y el host con -pooler.
+-- DB_URL_COMPRAS, DB_URL_PRODUCCION, DB_URL_TESORERIA y DB_URL_GERENCIA con cada usuario y el host con -pooler.
 --
 -- Las tablas acotadas usan GRANT por columna: el rol no puede leer las demás columnas aunque
 -- sql_guard fallara.
@@ -62,3 +62,36 @@ GRANT SELECT (iddocumento, idcaja, idcajaapertura, fechadocumento, tipodocumento
 GRANT SELECT (idcaja, nombre, activa, estadocaja) ON public.cajas TO agente_tesoreria_ro;
 ALTER ROLE agente_tesoreria_ro SET default_transaction_read_only = on;
 ALTER ROLE agente_tesoreria_ro SET statement_timeout = '60s';
+
+-- ---------------------------------------------------------------- gerencia (unión de los cuatro perfiles)
+CREATE ROLE agente_gerencia_ro LOGIN PASSWORD 'CAMBIAR_ESTA_CLAVE';
+GRANT CONNECT ON DATABASE panacea TO agente_gerencia_ro;
+GRANT USAGE ON SCHEMA public TO agente_gerencia_ro;
+GRANT SELECT ON public.panacea_sales_v2 TO agente_gerencia_ro;
+GRANT SELECT ON public.compras_compra TO agente_gerencia_ro;
+GRANT SELECT ON public.compras_compra_detalle TO agente_gerencia_ro;
+GRANT SELECT ON public.compras_compra_impuesto TO agente_gerencia_ro;
+GRANT SELECT ON public.compras_pago TO agente_gerencia_ro;
+GRANT SELECT ON public.compras_pago_aplicacion TO agente_gerencia_ro;
+GRANT SELECT ON public.compras_movimiento_cc TO agente_gerencia_ro;
+GRANT SELECT (id, codigo, nombre, nombre_fantasia, cuit, condicion_iva, condicion_pago, estado, fecha_alta) ON public.costos_proveedor TO agente_gerencia_ro;
+GRANT SELECT ON public.costos_insumos TO agente_gerencia_ro;
+GRANT SELECT ON public.costos_programacion TO agente_gerencia_ro;
+GRANT SELECT ON public.costos_planificacion TO agente_gerencia_ro;
+GRANT SELECT ON public.ordenes_produccion TO agente_gerencia_ro;
+GRANT SELECT ON public.ordenes_produccion_producto_linea TO agente_gerencia_ro;
+GRANT SELECT ON public.ordenes_produccion_insumo_linea TO agente_gerencia_ro;
+GRANT SELECT ON public.productos_fabricados TO agente_gerencia_ro;
+GRANT SELECT ON public.stock_movimientos TO agente_gerencia_ro;
+GRANT SELECT ON public.procesos_proceso TO agente_gerencia_ro;
+GRANT SELECT ON public.procesos_proceso_linea TO agente_gerencia_ro;
+GRANT SELECT ON public.costos_productos TO agente_gerencia_ro;
+GRANT SELECT ON public.costos_productosref TO agente_gerencia_ro;
+GRANT SELECT ON public.costos_costos TO agente_gerencia_ro;
+GRANT SELECT ON public.costos_centro_trabajo TO agente_gerencia_ro;
+GRANT SELECT ON public.articulos_final TO agente_gerencia_ro;
+GRANT SELECT ON public.compras_pago_medio TO agente_gerencia_ro;
+GRANT SELECT (iddocumento, idcaja, idcajaapertura, fechadocumento, tipodocumento, prefijodocumento, nrodocumento, idvendedor, pagoefectivo, pagoefectivoneto, pagovuelto, idtarjeta, pagotarjeta, cuotastarjeta, idtipodescuento, descuento, porcdescuento, recargo, valorapagar, subtotal, iva, docanulado, condventa, estadodoc) ON public.documentos TO agente_gerencia_ro;
+GRANT SELECT (idcaja, nombre, activa, estadocaja) ON public.cajas TO agente_gerencia_ro;
+ALTER ROLE agente_gerencia_ro SET default_transaction_read_only = on;
+ALTER ROLE agente_gerencia_ro SET statement_timeout = '60s';

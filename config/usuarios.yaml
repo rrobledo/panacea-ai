@@ -16,11 +16,11 @@ usuarios:
     }
   - {
       email: raul.osvaldo.robledo@gmail.com,
-      perfiles: [ventas, compras, produccion, tesoreria],
+      perfiles: [ventas, compras, produccion, tesoreria, gerencia],
       admin: true,
     }
   - {
       email: vero.a.cruz@gmail.com,
-      perfiles: [ventas, compras, produccion, tesoreria],
+      perfiles: [ventas, compras, produccion, tesoreria, gerencia],
       admin: true,
     }

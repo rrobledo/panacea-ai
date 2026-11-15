@@ -1,0 +1,121 @@
+id: gerencia
+nombre: Análisis global
+descripcion: Ventas, compras, producción y tesorería juntas, para análisis de gerencia
+modelo: claude-sonnet-5-5
+esfuerzo: medium
+prompt: prompts/gerencia.md
+
+# Reúne las tablas de los perfiles ventas, compras, produccion y tesoreria, con las mismas columnas
+# acotadas (proveedores sin contacto, documentos solo con columnas de cobro). Si cambian esos perfiles,
+# actualizá este archivo: tests/test_perfiles_area.py controla que sea la unión exacta.
+base_datos:
+  credencial_env: DB_URL_GERENCIA       # rol agente_gerencia_ro (sql/roles_perfiles_area.sql)
+  tablas:
+    - nombre: public.panacea_sales_v2
+      descripcion: Una fila por línea de comprobante
+      columna_fecha: operation_date
+      diccionario: prompts/diccionarios/panacea_sales_v2.md
+    - nombre: public.compras_compra
+      descripcion: Una fila por comprobante de proveedor
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/compras_compra.md
+    - nombre: public.compras_compra_detalle
+      descripcion: Líneas de cada comprobante
+      diccionario: prompts/diccionarios/compras_compra_detalle.md
+    - nombre: public.compras_compra_impuesto
+      descripcion: Desglose de impuestos (casi sin datos)
+      diccionario: prompts/diccionarios/compras_compra_impuesto.md
+    - nombre: public.compras_pago
+      descripcion: Pagos a proveedores
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/compras_pago.md
+    - nombre: public.compras_pago_aplicacion
+      descripcion: Qué comprobante cancela cada pago
+      diccionario: prompts/diccionarios/compras_pago_aplicacion.md
+    - nombre: public.compras_movimiento_cc
+      descripcion: Cuenta corriente con proveedores (debe y haber)
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/compras_movimiento_cc.md
+    - nombre: public.costos_proveedor
+      descripcion: Proveedores
+      columnas: [id, codigo, nombre, nombre_fantasia, cuit, condicion_iva, condicion_pago, estado, fecha_alta]
+      diccionario: prompts/diccionarios/costos_proveedor.md
+    - nombre: public.costos_insumos
+      descripcion: Insumos con su precio de referencia
+      diccionario: prompts/diccionarios/costos_insumos.md
+    - nombre: public.costos_programacion
+      descripcion: Plan y producción diaria por producto
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/costos_programacion.md
+    - nombre: public.costos_planificacion
+      descripcion: Plan mensual por producto
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/costos_planificacion.md
+    - nombre: public.ordenes_produccion
+      descripcion: Órdenes de producción (desde el 07/09/2026)
+      columna_fecha: fecha_fabricacion
+      diccionario: prompts/diccionarios/ordenes_produccion.md
+    - nombre: public.ordenes_produccion_producto_linea
+      descripcion: Productos de cada orden
+      diccionario: prompts/diccionarios/ordenes_produccion_producto_linea.md
+    - nombre: public.ordenes_produccion_insumo_linea
+      descripcion: Insumos de cada orden
+      diccionario: prompts/diccionarios/ordenes_produccion_insumo_linea.md
+    - nombre: public.productos_fabricados
+      descripcion: Lo fabricado y el desperdicio por orden
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/productos_fabricados.md
+    - nombre: public.stock_movimientos
+      descripcion: Movimientos de stock de insumos y productos
+      columna_fecha: fecha
+      diccionario: prompts/diccionarios/stock_movimientos.md
+    - nombre: public.procesos_proceso
+      descripcion: Recetas versionadas del grafo de procesos
+      diccionario: prompts/diccionarios/procesos_proceso.md
+    - nombre: public.procesos_proceso_linea
+      descripcion: Entradas y salidas de cada receta
+      diccionario: prompts/diccionarios/procesos_proceso_linea.md
+    - nombre: public.costos_productos
+      descripcion: Productos fabricados y semielaborados
+      diccionario: prompts/diccionarios/costos_productos.md
+    - nombre: public.costos_productosref
+      descripcion: Vínculo de cada producto con sus artículos del sistema de caja
+      diccionario: prompts/diccionarios/costos_productosref.md
+    - nombre: public.costos_costos
+      descripcion: Receta del motor viejo (insumos por lote)
+      diccionario: prompts/diccionarios/costos_costos.md
+    - nombre: public.costos_centro_trabajo
+      descripcion: Centros de trabajo con tarifa horaria
+      diccionario: prompts/diccionarios/costos_centro_trabajo.md
+    - nombre: public.articulos_final
+      descripcion: Vista de artículos activos con precio de venta
+      diccionario: prompts/diccionarios/articulos_final.md
+    - nombre: public.compras_pago_medio
+      descripcion: Medio de cada pago
+      columna_fecha: fecha_acreditacion
+      diccionario: prompts/diccionarios/compras_pago_medio.md
+    - nombre: public.documentos
+      descripcion: Comprobantes de caja de Villa Allende y la Dietética (solo columnas de cobro)
+      columna_fecha: fechadocumento
+      columnas: [iddocumento, idcaja, idcajaapertura, fechadocumento, tipodocumento, prefijodocumento, nrodocumento, idvendedor, pagoefectivo, pagoefectivoneto, pagovuelto, idtarjeta, pagotarjeta, cuotastarjeta, idtipodescuento, descuento, porcdescuento, recargo, valorapagar, subtotal, iva, docanulado, condventa, estadodoc]
+      diccionario: prompts/diccionarios/documentos.md
+    - nombre: public.cajas
+      descripcion: Cajas de Villa Allende y la Dietética
+      columnas: [idcaja, nombre, activa, estadocaja]
+      diccionario: prompts/diccionarios/cajas.md
+
+herramientas:
+  [perfil_datos, describir_tabla, resumen_ventas, comparar_periodos,
+   clientes_inactivos, productos_asociados, proyectar_ventas, consultar,
+   ventas_con_contexto, impacto_variables, contexto_proximos_dias,
+   solicitar_aclaraciones, generar_artifact, editar_artifact]
+
+reglas:
+  # Ventas de mostrador: 999 Carlos Paz, 0 Villa Allende, 888 Córdoba, 777 Villa General Belgrano
+  excluir_clientes_en_analisis: [999, 0, 888, 777]
+
+limites:
+  max_filas: 500
+  timeout_sql_seg: 60
+  max_herramientas_por_turno: 40          # cruza áreas: más consultas por turno que un perfil de área
+  presupuesto_tokens_por_turno: 300000

@@ -87,7 +87,7 @@ en la app web.
 | `AUTH_BACKEND_URL` | Backend que hace el login con Google (por defecto `https://panacea-produccion-backend.vercel.app`) |
 | `APP_URL` | Opcional: URL pública de esta app, si la que ve Next no es la real |
 | `DB_URL_APP` | Base del esquema `app`, con el rol `agente_app` |
-| `DB_URL_<PERFIL>` | Una por perfil, con el rol de solo lectura de ese perfil: `DB_URL_VENTAS`, `DB_URL_COMPRAS`, `DB_URL_PRODUCCION`, `DB_URL_TESORERIA` |
+| `DB_URL_<PERFIL>` | Una por perfil, con el rol de solo lectura de ese perfil: `DB_URL_VENTAS`, `DB_URL_COMPRAS`, `DB_URL_PRODUCCION`, `DB_URL_TESORERIA`, `DB_URL_GERENCIA` |
 
 En Vercel/Neon usá el host con `-pooler` en las URL de la app. La conexión directa
 (`POSTGRES_URL_NON_POOLING`, rol dueño) queda solo para migraciones.
@@ -106,6 +106,7 @@ En Vercel/Neon usá el host con `-pooler` en las URL de la app. La conexión dir
 | `compras` | Gasto por categoría y proveedor, deuda y días de pago | Facturas, detalle, impuestos, pagos, aplicación de pagos, cuenta corriente, proveedores (sin contacto), insumos |
 | `produccion` | Plan contra real contra vendido, órdenes, merma, stock, recetas y costo de materia prima | Programación, planificación, órdenes y sus líneas, fabricados, stock, procesos, productos, recetas, insumos, centros de trabajo, `articulos_final`, `panacea_sales_v2` (sin clientes) |
 | `tesoreria` | Cobros por medio de pago (Villa Allende y Dietética), pagos, vencimientos y saldos | Pagos y medios, aplicación, facturas (importes y vencimientos), cuenta corriente, proveedores, `documentos` (solo cobro), `cajas` |
+| `gerencia` | Análisis global: cruza ventas, compras, producción y tesorería (márgenes, plan contra vendido, flujo de fondos) | Las 26 tablas de los cuatro perfiles, con las mismas columnas acotadas, y todas las herramientas de ventas |
 
 Los perfiles de área usan `describir_tabla`, `consultar` y los reportes. Ningún perfil puede incluir
 tablas deprecadas o sensibles (`TABLAS_NO_EXPONIBLES` en `agent/profiles.py`): la configuración no
