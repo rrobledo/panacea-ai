@@ -9,5 +9,18 @@
 #     - { email: gerencia@example.com,  perfiles: [ventas], admin: true, tope_mensual_usd: 100 }
 tope_mensual_usd: 50
 usuarios:
-  - { email: panacea.bakeryglutenfree@gmail.com, perfiles: [ventas] }
-  - { email: raul.osvaldo.robledo@gmail.com, perfiles: [ventas] }
+  - {
+      email: panacea.bakeryglutenfree@gmail.com,
+      perfiles: [ventas, compras, produccion, tesoreria],
+      admin: true,
+    }
+  - {
+      email: raul.osvaldo.robledo@gmail.com,
+      perfiles: [ventas, compras, produccion, tesoreria],
+      admin: true,
+    }
+  - {
+      email: vero.a.cruz@gmail.com,
+      perfiles: [ventas, compras, produccion, tesoreria],
+      admin: true,
+    }
