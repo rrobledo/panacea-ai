@@ -240,3 +240,32 @@ def test_turno_ocupado(almacen):
         almacen.tomar_turno(cid)
     almacen.soltar_turno(cid)
     almacen.tomar_turno(cid)
+
+
+def test_cambiar_programacion_recibe_base_y_escritura(almacen, herramientas, ctx, monkeypatch):
+    """El loop le pasa a la herramienta de escritura la base del perfil (con auditor) y el engine de escritura."""
+    from agent import profiles
+    from agent.tools import registro
+    recibido = {}
+
+    def falsa(tc, entrada):
+        recibido.update(datos=tc.datos, motor=tc.escritura())
+        return json.dumps({"estado": "propuesta", "codigo_confirmacion": "ABCDEF12"})
+
+    monkeypatch.setitem(registro.HERRAMIENTAS_AGENTE, "cambiar_programacion",
+                        registro.HerramientaAgente("x", registro.HERRAMIENTAS_AGENTE["cambiar_programacion"].entrada, falsa))
+    motor = object()
+    monkeypatch.setattr(profiles, "engine_para", lambda cred: motor if cred == "DB_URL_ESCRITURA" else None)
+    p = perfil_prueba(
+        base_datos={"credencial_env": "DB_URL_VENTAS", "tablas": [{"nombre": "public.costos_programacion"},
+                                                                   {"nombre": "public.costos_productos"}]},
+        herramientas=["consultar", "cambiar_programacion"], escritura={"credencial_env": "DB_URL_ESCRITURA"})
+    cliente = ClienteFalso(mensaje(tool_use("t1", "cambiar_programacion",
+                                            {"cambios": [{"producto_id": 45, "fecha": "2026-11-20", "plan": 10}]}),
+                                   stop="tool_use"),
+                           mensaje(texto("¿Confirmás?")))
+    conv = almacen.crear_conversacion("ana@example.com", p.id, "x")
+    agente = Agente(cliente, almacen, p, ctx, "sistema")
+    almacen.tomar_turno(conv.id)
+    list(agente.turno(conv.id, "Subí el plan"))
+    assert recibido["motor"] is motor and recibido["datos"].auditor is not None

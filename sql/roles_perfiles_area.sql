@@ -10,6 +10,7 @@
 -- sql_guard fallara.
 
 
+
 -- ---------------------------------------------------------------- compras
 CREATE ROLE agente_compras_ro LOGIN PASSWORD 'CAMBIAR_ESTA_CLAVE';
 GRANT CONNECT ON DATABASE panacea TO agente_compras_ro;
@@ -45,6 +46,9 @@ GRANT SELECT ON public.costos_insumos TO agente_produccion_ro;
 GRANT SELECT ON public.costos_centro_trabajo TO agente_produccion_ro;
 GRANT SELECT ON public.articulos_final TO agente_produccion_ro;
 GRANT SELECT (product_id, product, category, lugar_venta_id, lugar_venta, operation_date, operation_year, operation_month, count, subtotal) ON public.panacea_sales_v2 TO agente_produccion_ro;
+GRANT SELECT ON public.pedidos_pedido TO agente_produccion_ro;
+GRANT SELECT ON public.pedidos_pedido_detalle TO agente_produccion_ro;
+GRANT SELECT ON public.sucursales_sucursal TO agente_produccion_ro;
 ALTER ROLE agente_produccion_ro SET default_transaction_read_only = on;
 ALTER ROLE agente_produccion_ro SET statement_timeout = '60s';
 
@@ -93,5 +97,13 @@ GRANT SELECT ON public.articulos_final TO agente_gerencia_ro;
 GRANT SELECT ON public.compras_pago_medio TO agente_gerencia_ro;
 GRANT SELECT (iddocumento, idcaja, idcajaapertura, fechadocumento, tipodocumento, prefijodocumento, nrodocumento, idvendedor, pagoefectivo, pagoefectivoneto, pagovuelto, idtarjeta, pagotarjeta, cuotastarjeta, idtipodescuento, descuento, porcdescuento, recargo, valorapagar, subtotal, iva, docanulado, condventa, estadodoc) ON public.documentos TO agente_gerencia_ro;
 GRANT SELECT (idcaja, nombre, activa, estadocaja) ON public.cajas TO agente_gerencia_ro;
+GRANT SELECT ON public.pedidos_pedido TO agente_gerencia_ro;
+GRANT SELECT ON public.pedidos_pedido_detalle TO agente_gerencia_ro;
+GRANT SELECT ON public.sucursales_sucursal TO agente_gerencia_ro;
 ALTER ROLE agente_gerencia_ro SET default_transaction_read_only = on;
 ALTER ROLE agente_gerencia_ro SET statement_timeout = '60s';
+
+-- ---------------------------------------------------------------- roles ya creados
+-- Si los roles ya existen (cambio anterior), alcanza con los GRANT nuevos:
+GRANT SELECT ON public.pedidos_pedido, public.pedidos_pedido_detalle, public.sucursales_sucursal TO agente_produccion_ro;
+GRANT SELECT ON public.pedidos_pedido, public.pedidos_pedido_detalle, public.sucursales_sucursal TO agente_gerencia_ro;

@@ -125,4 +125,6 @@ export const NOMBRES_HERRAMIENTAS: Record<string, string> = {
   ventas_con_contexto: "Ventas con variables externas",
   impacto_variables: "Impacto de variables externas",
   contexto_proximos_dias: "Próximos días",
+  remitos_vs_ventas: "Remitos contra ventas",
+  cambiar_programacion: "Cambiar programación",
 };

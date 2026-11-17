@@ -70,7 +70,7 @@ def test_consultar_rechaza_igual(servidores, sql):
 
 
 # Herramientas agregadas después del servidor original (cambio variables-externas-ventas).
-NUEVAS = ["ventas_con_contexto", "impacto_variables", "contexto_proximos_dias"]
+NUEVAS = ["ventas_con_contexto", "impacto_variables", "contexto_proximos_dias", "remitos_vs_ventas"]
 # Cambiaron su descripción o sus parámetros (perfiles-compras-produccion-tesoreria); la salida
 # sin parámetros sigue igual y la cubre test_misma_salida.
 CAMBIADAS = {"describir_tabla", "consultar"}

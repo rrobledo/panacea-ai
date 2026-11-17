@@ -4,6 +4,9 @@
 #
 # perfil: residencial | turistico | eventos | capital | sin_ubicacion
 # Un lugar sin lat/lon no tiene clima (las demás variables sí se calculan).
+# sucursales: ids de sucursales_sucursal (sistema de pedidos y remitos) que venden como este lugar.
+#   Sirve para cruzar remitos de la fábrica con ventas (herramienta remitos_vs_ventas).
+#   La sucursal 1 es la fábrica (Centro Producción): no vende al público.
 
 zona_horaria: America/Argentina/Cordoba
 
@@ -19,6 +22,7 @@ lugares:
     lat: -31.2950
     lon: -64.2953
     perfil: residencial
+    sucursales: [2]          # Villa Allende
 
   - id: 2
     nombre: Carlos Paz
@@ -26,6 +30,7 @@ lugares:
     lat: -31.4241
     lon: -64.4978
     perfil: turistico
+    sucursales: [3, 4]       # Carlos Paz (9 de Julio 355) y Carlos Paz (San Martín)
 
   - id: 3
     nombre: Cordoba
@@ -40,3 +45,4 @@ lugares:
     lat: -31.9786
     lon: -64.5561
     perfil: eventos          # Vende desde el 25/09/2026: poca historia
+    sucursales: [5]

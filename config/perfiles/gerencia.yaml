@@ -103,11 +103,21 @@ base_datos:
       descripcion: Cajas de Villa Allende y la Dietética
       columnas: [idcaja, nombre, activa, estadocaja]
       diccionario: prompts/diccionarios/cajas.md
+    - nombre: public.pedidos_pedido
+      descripcion: Pedidos de clientes y remitos de la fábrica a las sucursales
+      columna_fecha: fecha_listo_para_entrega
+      diccionario: prompts/diccionarios/pedidos_pedido.md
+    - nombre: public.pedidos_pedido_detalle
+      descripcion: Productos de cada pedido o remito
+      diccionario: prompts/diccionarios/pedidos_pedido_detalle.md
+    - nombre: public.sucursales_sucursal
+      descripcion: Sucursales del sistema de pedidos (1 es la fábrica)
+      diccionario: prompts/diccionarios/sucursales_sucursal.md
 
 herramientas:
   [perfil_datos, describir_tabla, resumen_ventas, comparar_periodos,
    clientes_inactivos, productos_asociados, proyectar_ventas, consultar,
-   ventas_con_contexto, impacto_variables, contexto_proximos_dias,
+   ventas_con_contexto, impacto_variables, contexto_proximos_dias, remitos_vs_ventas,
    solicitar_aclaraciones, generar_artifact, editar_artifact]
 
 reglas:

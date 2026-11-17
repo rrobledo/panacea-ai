@@ -52,6 +52,11 @@ de cada lugar de venta están en `config/lugares_venta.yaml`.
 - El servidor MCP `open-meteo` sirve para consultas puntuales de clima; para cruzar con ventas usá las
   herramientas de `ventas-db`.
 
+## Remitos contra ventas
+`remitos_vs_ventas` compara lo enviado por la fábrica a cada sucursal (pedidos_pedido tipo SUCURSAL, por
+fecha_listo_para_entrega y cantidad_entregada) con lo vendido. La diferencia es el stock virtual del período,
+no un inventario: no hay conteos ni desperdicio de sucursal.
+
 ## Análisis frecuentes
 - Evolución mensual: ventas, tickets, ticket promedio y unidades por ticket; variación interanual.
 - Pareto: qué % de productos o clientes explica el 80% de las ventas.

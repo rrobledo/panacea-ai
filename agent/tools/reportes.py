@@ -7,11 +7,12 @@ y el almacén, así que reciben un ContextoTurno. No se exponen por el servidor 
 
 import json
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Callable, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from agent.almacen import Almacen, Conversacion, Paso
+from agent.contexto import ContextoPerfil
 from agent.artifacts import ArtifactInvalido, componer, validar_html
 
 Formato = Literal["moneda", "moneda2", "numero", "decimal", "porcentaje"]
@@ -28,6 +29,8 @@ class ContextoTurno:
     pasos: dict[str, Paso]
     herramientas_datos: frozenset[str]
     eventos: list[dict] = field(default_factory=list)  # se emiten por SSE después del paso
+    datos: ContextoPerfil | None = None  # base del perfil (solo lectura) con el auditor de este paso
+    escritura: Callable[[], object] | None = None  # engine de escritura del perfil, creado al pedirlo
 
 
 # ---------------------------------------------------------------- entrada

@@ -3,6 +3,9 @@ CREATE ROLE agente_ventas LOGIN PASSWORD 'CAMBIAR_ESTA_CLAVE';
 GRANT CONNECT ON DATABASE panacea TO agente_ventas;   -- reemplazá "panacea" por el nombre de tu base
 GRANT USAGE ON SCHEMA public TO agente_ventas;
 GRANT SELECT ON public.panacea_sales_v2 TO agente_ventas;
+-- Remitos contra ventas (herramienta remitos_vs_ventas):
+GRANT SELECT ON public.pedidos_pedido, public.pedidos_pedido_detalle, public.sucursales_sucursal,
+                public.costos_productos TO agente_ventas;
 ALTER ROLE agente_ventas SET default_transaction_read_only = on;
 ALTER ROLE agente_ventas SET statement_timeout = '60s';
 

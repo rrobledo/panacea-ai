@@ -110,7 +110,11 @@ def test_contexto_del_perfil():
     p = cargar_configuracion().perfiles["ventas"]
     ctx = contexto_para(p, engine=object())  # sin tablas acotadas no consulta la base
     assert ctx.tabla == "public.panacea_sales_v2"
-    assert ctx.tablas_permitidas == {"public.panacea_sales_v2": None}
+    assert ctx.tablas_permitidas["public.panacea_sales_v2"] is None
+    assert set(ctx.tablas_permitidas) == {"public.panacea_sales_v2", "public.pedidos_pedido",
+                                          "public.pedidos_pedido_detalle", "public.sucursales_sucursal",
+                                          "public.costos_productos"}
+    assert ctx.columnas_fecha["public.pedidos_pedido"] == "fecha_listo_para_entrega"
     assert ctx.excluir_clientes_ids == (999, 0, 888, 777)
     assert (ctx.max_filas, ctx.timeout_sql_seg) == (500, 60)
 
@@ -129,3 +133,15 @@ def test_falta_credencial(monkeypatch):
 def test_tabla_no_exponible(raiz, tabla):
     editar(raiz, "config/perfiles/ventas.yaml", lambda d: d["base_datos"]["tablas"].append({"nombre": tabla}))
     falla(raiz, "ventas.yaml", "base_datos.tablas", tabla, "no se puede exponer")
+
+
+def test_cambiar_programacion_requiere_escritura(raiz):
+    editar(raiz, "config/perfiles/produccion.yaml", lambda d: d.pop("escritura"))
+    falla(raiz, "produccion.yaml", "cambiar_programacion necesita 'escritura'")
+
+
+def test_remitos_requiere_sus_tablas(raiz):
+    editar(raiz, "config/perfiles/ventas.yaml",
+           lambda d: d["base_datos"].update(tablas=[t for t in d["base_datos"]["tablas"]
+                                                    if t["nombre"] != "public.pedidos_pedido_detalle"]))
+    falla(raiz, "ventas.yaml", "remitos_vs_ventas necesita las tablas", "pedidos_pedido_detalle")

@@ -9,8 +9,16 @@ AREAS = ("compras", "produccion", "tesoreria")
 HERRAMIENTAS_AREA = ["describir_tabla", "consultar", "solicitar_aclaraciones", "generar_artifact", "editar_artifact"]
 VENTAS_HERRAMIENTAS = ["perfil_datos", "describir_tabla", "resumen_ventas", "comparar_periodos",
                        "clientes_inactivos", "productos_asociados", "proyectar_ventas", "consultar",
-                       "ventas_con_contexto", "impacto_variables", "contexto_proximos_dias",
+                       "ventas_con_contexto", "impacto_variables", "contexto_proximos_dias", "remitos_vs_ventas",
                        "solicitar_aclaraciones", "generar_artifact", "editar_artifact"]
+# Producción suma los remitos y la única herramienta que escribe.
+HERRAMIENTAS_POR_AREA = {
+    "compras": HERRAMIENTAS_AREA,
+    "tesoreria": HERRAMIENTAS_AREA,
+    "produccion": ["describir_tabla", "consultar", "remitos_vs_ventas", "cambiar_programacion",
+                   "solicitar_aclaraciones", "generar_artifact", "editar_artifact"],
+}
+TABLAS_REMITOS = ["public.pedidos_pedido", "public.pedidos_pedido_detalle", "public.sucursales_sucursal"]
 
 
 @pytest.fixture(scope="module")
@@ -18,17 +26,26 @@ def config():
     return cargar_configuracion()
 
 
-def test_ventas_sin_cambios(config):
+def test_perfil_ventas(config):
     v = config.perfiles["ventas"]
-    assert [t.nombre for t in v.base_datos.tablas] == ["public.panacea_sales_v2"]
+    assert [t.nombre for t in v.base_datos.tablas] == ["public.panacea_sales_v2", *TABLAS_REMITOS,
+                                                       "public.costos_productos"]
+    assert v.base_datos.tablas[0].columnas is None
     assert v.herramientas == VENTAS_HERRAMIENTAS
-    assert v.base_datos.credencial_env == "DB_URL_VENTAS"
+    assert v.base_datos.credencial_env == "DB_URL_VENTAS" and v.escritura is None
+
+
+def test_solo_produccion_escribe(config):
+    con_escritura = {p.id for p in config.perfiles.values() if p.escritura is not None}
+    con_herramienta = {p.id for p in config.perfiles.values() if "cambiar_programacion" in p.herramientas}
+    assert con_escritura == con_herramienta == {"produccion"}
+    assert config.perfiles["produccion"].escritura.credencial_env == "DB_URL_PRODUCCION_ESCRITURA"
 
 
 @pytest.mark.parametrize("area", AREAS)
 def test_perfil_de_area(config, area):
     p = config.perfiles[area]
-    assert p.herramientas == HERRAMIENTAS_AREA
+    assert p.herramientas == HERRAMIENTAS_POR_AREA[area]
     assert not HERRAMIENTAS_VENTAS & set(p.herramientas)
     assert p.base_datos.credencial_env == f"DB_URL_{area.upper()}"
     for t in p.base_datos.tablas:
@@ -128,3 +145,13 @@ def test_rol_real(config, area):
     for t in p.base_datos.tablas:
         assert "error" not in describir_tabla(ctx, t.nombre), t.nombre
     assert "no permitid" in consultar(ctx, "SELECT * FROM public.socios").lower()
+
+
+def test_script_de_escritura():
+    """El rol de escritura solo puede leer las columnas de control y actualizar plan."""
+    from tests.conftest import RAIZ
+    sql = (RAIZ / "sql/rol_produccion_escritura.sql").read_text()
+    grants = [l for l in sql.splitlines() if l.startswith("GRANT")]
+    assert "GRANT UPDATE (plan) ON public.costos_programacion TO agente_produccion_rw;" in grants
+    assert not any("INSERT" in g or "DELETE" in g or "UPDATE ON" in g or "ALL" in g for g in grants)
+    assert sum("ON public." in g for g in grants) == 2  # solo costos_programacion

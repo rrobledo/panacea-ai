@@ -410,7 +410,9 @@ class Agente:
         try:
             if nombre in registro.HERRAMIENTAS_AGENTE:
                 tc = ContextoTurno(self.almacen, self.almacen.conversacion(conv_id), self.perfil.id,
-                                   self.perfil.nombre, tid, historia, pasos, frozenset(registro.HERRAMIENTAS))
+                                   self.perfil.nombre, tid, historia, pasos, frozenset(registro.HERRAMIENTAS),
+                                   datos=replace(self.ctx, auditor=self._auditor(nombre)),
+                                   escritura=self._engine_escritura)
                 resultado = registro.HERRAMIENTAS_AGENTE[nombre].ejecutar(tc, validado)
                 eventos.extend(tc.eventos)
             else:
@@ -437,6 +439,13 @@ class Agente:
             self.almacen.registrar_uso(RegistroUso(self._conv.usuario, self.perfil.id, self._conv.id, modelo, **d))
         except Exception:
             log.exception("no se pudo registrar el uso de tokens")
+
+    def _engine_escritura(self):
+        """Engine con el rol de escritura del perfil. Solo lo pide cambiar_programacion."""
+        from agent.profiles import ErrorConfiguracion, engine_para
+        if self.perfil.escritura is None:
+            raise ErrorConfiguracion(f"El perfil {self.perfil.id} no tiene credencial de escritura")
+        return engine_para(self.perfil.escritura.credencial_env)
 
     def _auditor(self, herramienta: str):
         def auditar(*, sql, parametros, duracion_ms, filas, error):

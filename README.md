@@ -87,28 +87,37 @@ en la app web.
 | `AUTH_BACKEND_URL` | Backend que hace el login con Google (por defecto `https://panacea-produccion-backend.vercel.app`) |
 | `APP_URL` | Opcional: URL pública de esta app, si la que ve Next no es la real |
 | `DB_URL_APP` | Base del esquema `app`, con el rol `agente_app` |
-| `DB_URL_<PERFIL>` | Una por perfil, con el rol de solo lectura de ese perfil: `DB_URL_VENTAS`, `DB_URL_COMPRAS`, `DB_URL_PRODUCCION`, `DB_URL_TESORERIA`, `DB_URL_GERENCIA` |
+| `DB_URL_<PERFIL>` | Una por perfil, con el rol de solo lectura de ese perfil: `DB_URL_VENTAS`, `DB_URL_COMPRAS`, `DB_URL_PRODUCCION`, `DB_URL_TESORERIA`, `DB_URL_GERENCIA`. Escritura: `DB_URL_PRODUCCION_ESCRITURA` |
 
 En Vercel/Neon usá el host con `-pooler` en las URL de la app. La conexión directa
 (`POSTGRES_URL_NON_POOLING`, rol dueño) queda solo para migraciones.
 
 ### Base de datos
 1. Roles por perfil: `sql/usuario_solo_lectura.sql` (ventas) y `sql/roles_perfiles_area.sql` (compras,
-   producción y tesorería, con `GRANT` por columna en las tablas acotadas). Se corren a mano como
-   administrador, después de cambiar las contraseñas.
+   producción, tesorería y gerencia, con `GRANT` por columna en las tablas acotadas) y
+   `sql/rol_produccion_escritura.sql` (escritura del plan). Se corren a mano como administrador, después
+   de cambiar las contraseñas.
 2. Esquema de la app: `psql "$POSTGRES_URL_NON_POOLING" -f sql/app/001_esquema.sql`. El script es
    idempotente y da permisos a `agente_app` si ese rol ya existe.
 
 ### Perfiles y usuarios
 | Perfil | Para qué | Tablas |
 |---|---|---|
-| `ventas` | Ventas, tickets, clientes, canasta, proyecciones y variables externas | `panacea_sales_v2` |
+| `ventas` | Ventas, tickets, clientes, canasta, proyecciones, variables externas y remitos contra ventas por sucursal | `panacea_sales_v2`, pedidos y remitos, sucursales, `costos_productos` |
 | `compras` | Gasto por categoría y proveedor, deuda y días de pago | Facturas, detalle, impuestos, pagos, aplicación de pagos, cuenta corriente, proveedores (sin contacto), insumos |
-| `produccion` | Plan contra real contra vendido, órdenes, merma, stock, recetas y costo de materia prima | Programación, planificación, órdenes y sus líneas, fabricados, stock, procesos, productos, recetas, insumos, centros de trabajo, `articulos_final`, `panacea_sales_v2` (sin clientes) |
+| `produccion` | Plan contra real contra vendido, órdenes, merma, stock, recetas, costo de materia prima, remitos contra ventas y **cambio del plan diario** (con confirmación) | Programación, planificación, órdenes y sus líneas, fabricados, stock, procesos, productos, recetas, insumos, centros de trabajo, `articulos_final`, `panacea_sales_v2` (sin clientes), pedidos y remitos, sucursales |
 | `tesoreria` | Cobros por medio de pago (Villa Allende y Dietética), pagos, vencimientos y saldos | Pagos y medios, aplicación, facturas (importes y vencimientos), cuenta corriente, proveedores, `documentos` (solo cobro), `cajas` |
 | `gerencia` | Análisis global: cruza ventas, compras, producción y tesorería (márgenes, plan contra vendido, flujo de fondos) | Las 26 tablas de los cuatro perfiles, con las mismas columnas acotadas, y todas las herramientas de ventas |
 
-Los perfiles de área usan `describir_tabla`, `consultar` y los reportes. Ningún perfil puede incluir
+Los perfiles de área usan `describir_tabla`, `consultar` y los reportes. Ventas, producción y gerencia
+tienen además `remitos_vs_ventas`: lo enviado por la fábrica a cada sucursal (remitos de `pedidos_pedido`,
+por `fecha_listo_para_entrega`) contra lo vendido, con el stock virtual del período.
+
+**Escritura (solo producción):** `cambiar_programacion` cambia el plan diario de `costos_programacion`
+desde hoy, sobre filas existentes. Siempre propone primero y solo aplica después de que el usuario confirma
+en el chat (el código lo exige). Usa un rol aparte con `UPDATE (plan)` y nada más
+(`sql/rol_produccion_escritura.sql`, variable `DB_URL_PRODUCCION_ESCRITURA`). Cada cambio queda en
+`app.auditoria_sql` con el usuario y los valores anterior y nuevo. Ningún perfil puede incluir
 tablas deprecadas o sensibles (`TABLAS_NO_EXPONIBLES` en `agent/profiles.py`): la configuración no
 carga. Para habilitar a alguien, sumá el perfil a su entrada en `config/usuarios.yaml` (y que exista
 su `DB_URL_<PERFIL>`).

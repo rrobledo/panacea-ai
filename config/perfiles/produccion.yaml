@@ -63,11 +63,27 @@ base_datos:
       columna_fecha: operation_date
       columnas: [product_id, product, category, lugar_venta_id, lugar_venta, operation_date, operation_year, operation_month, count, subtotal]
       diccionario: prompts/diccionarios/panacea_sales_v2_produccion.md
+    - nombre: public.pedidos_pedido
+      descripcion: Pedidos de clientes y remitos de la fábrica a las sucursales
+      columna_fecha: fecha_listo_para_entrega
+      diccionario: prompts/diccionarios/pedidos_pedido.md
+    - nombre: public.pedidos_pedido_detalle
+      descripcion: Productos de cada pedido o remito
+      diccionario: prompts/diccionarios/pedidos_pedido_detalle.md
+    - nombre: public.sucursales_sucursal
+      descripcion: Sucursales del sistema de pedidos (1 es la fábrica)
+      diccionario: prompts/diccionarios/sucursales_sucursal.md
 
-herramientas: [describir_tabla, consultar, solicitar_aclaraciones, generar_artifact, editar_artifact]
+herramientas: [describir_tabla, consultar, remitos_vs_ventas, cambiar_programacion,
+               solicitar_aclaraciones, generar_artifact, editar_artifact]
 
 limites:
   max_filas: 500
   timeout_sql_seg: 60
   max_herramientas_por_turno: 25
   presupuesto_tokens_por_turno: 200000
+
+# Rol con UPDATE solo sobre costos_programacion.plan (sql/rol_produccion_escritura.sql).
+# Lo usa únicamente cambiar_programacion, después de que el usuario confirma en el chat.
+escritura:
+  credencial_env: DB_URL_PRODUCCION_ESCRITURA

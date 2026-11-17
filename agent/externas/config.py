@@ -35,6 +35,7 @@ class Lugar(_Estricto):
     lat: float | None = Field(None, ge=-90, le=90)
     lon: float | None = Field(None, ge=-180, le=180)
     perfil: Literal["residencial", "turistico", "eventos", "capital", "sin_ubicacion"]
+    sucursales: list[int] = []  # ids de sucursales_sucursal que venden como este lugar
 
     @model_validator(mode="after")
     def _coordenadas(self):
@@ -57,7 +58,14 @@ class Lugares(_Estricto):
         repetidos = sorted({i for i in ids if ids.count(i) > 1})
         if repetidos:
             raise ValueError(f"ids repetidos: {repetidos}")
+        sucursales = [s for l in self.lugares for s in l.sucursales]
+        repetidas = sorted({s for s in sucursales if sucursales.count(s) > 1})
+        if repetidas:
+            raise ValueError(f"sucursales asignadas a más de un lugar: {repetidas}")
         return self
+
+    def lugar_de_sucursal(self) -> dict[int, "Lugar"]:
+        return {s: l for l in self.lugares for s in l.sucursales}
 
     def por_id(self) -> dict[int, Lugar]:
         return {l.id: l for l in self.lugares}

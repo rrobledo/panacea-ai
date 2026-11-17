@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from pydantic import BaseModel, ConfigDict, create_model
 
 from agent.contexto import ContextoPerfil
-from agent.tools import clarify, externas, generic, reportes, ventas
+from agent.tools import clarify, externas, generic, programacion, remitos, reportes, ventas
 
 # Mismo orden que el servidor MCP original.
 HERRAMIENTAS: dict[str, typing.Callable[..., str]] = {
@@ -33,6 +33,7 @@ HERRAMIENTAS: dict[str, typing.Callable[..., str]] = {
         externas.ventas_con_contexto,
         externas.impacto_variables,
         externas.contexto_proximos_dias,
+        remitos.remitos_vs_ventas,
     )
 }
 
@@ -53,6 +54,9 @@ HERRAMIENTAS_AGENTE: dict[str, HerramientaAgente] = {
                                           reportes.generar_artifact),
     "editar_artifact": HerramientaAgente(reportes.DESCRIPCION_EDITAR, reportes.EntradaEditar,
                                          reportes.editar_artifact),
+    # Escribe en la base: solo en perfiles con `escritura` (ver programacion.py).
+    programacion.NOMBRE: HerramientaAgente(programacion.DESCRIPCION, programacion.EntradaProgramacion,
+                                           programacion.cambiar_programacion),
 }
 
 

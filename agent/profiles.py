@@ -26,8 +26,14 @@ RAIZ = Path(__file__).resolve().parent.parent
 HERRAMIENTAS_VENTAS = {"perfil_datos", "resumen_ventas", "comparar_periodos", "clientes_inactivos",
                        "productos_asociados", "proyectar_ventas",
                        "ventas_con_contexto", "impacto_variables", "contexto_proximos_dias"}
+# Tablas que cada herramienta lee además de la principal: el perfil tiene que incluirlas.
+TABLAS_REQUERIDAS = {
+    "remitos_vs_ventas": {"public.panacea_sales_v2", "public.pedidos_pedido", "public.pedidos_pedido_detalle",
+                          "public.costos_productos"},
+    "cambiar_programacion": {"public.costos_programacion", "public.costos_productos"},
+}
 # Herramientas que leen config/lugares_venta.yaml y config/calendario_externo.yaml.
-HERRAMIENTAS_EXTERNAS = {"ventas_con_contexto", "impacto_variables", "contexto_proximos_dias"}
+HERRAMIENTAS_EXTERNAS = {"ventas_con_contexto", "impacto_variables", "contexto_proximos_dias", "remitos_vs_ventas"}
 
 
 # Tablas que ningún perfil puede exponer (relevamiento del 14/11/2026 cruzado con
@@ -79,6 +85,11 @@ class BaseDatos(_Estricto):
     tablas: list[Tabla] = Field(min_length=1)
 
 
+class Escritura(_Estricto):
+    """Credencial de un rol con permisos de escritura acotados (ej. UPDATE del plan de programación)."""
+    credencial_env: str
+
+
 class Reglas(_Estricto):
     excluir_clientes_en_analisis: list[int] = []
 
@@ -101,6 +112,7 @@ class Perfil(_Estricto):
     herramientas: list[str] = Field(min_length=1)
     reglas: Reglas = Reglas()
     limites: Limites = Limites()
+    escritura: Escritura | None = None
 
     @field_validator("herramientas")
     @classmethod
@@ -124,6 +136,12 @@ class Perfil(_Estricto):
         nombres = [t.nombre for t in self.base_datos.tablas]
         if len(set(nombres)) != len(nombres):
             raise ValueError("tablas repetidas")
+        for herramienta, tablas in TABLAS_REQUERIDAS.items():
+            faltan = sorted(tablas - set(nombres)) if herramienta in self.herramientas else []
+            if faltan:
+                raise ValueError(f"{herramienta} necesita las tablas {faltan}")
+        if "cambiar_programacion" in self.herramientas and self.escritura is None:
+            raise ValueError("cambiar_programacion necesita 'escritura' con la credencial del rol de escritura")
         return self
 
     @property
